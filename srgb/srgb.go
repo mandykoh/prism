@@ -90,11 +90,11 @@ func Convert8BitToLinear(v uint8) float64 {
 	return math.Pow((vNormalised+0.055)/1.055, 2.4)
 }
 
-func From8BitToLinear(srgb8 uint8) float64 {
+func From8Bit(srgb8 uint8) float64 {
 	return sRGB8ToLinearLUT[srgb8]
 }
 
-func FromLinearTo8Bit(linear float64) uint8 {
+func To8Bit(linear float64) uint8 {
 	clipped := math.Min(math.Max(linear, 0), 1)
 	return linearToSRGB8LUT[int(math.Round(clipped*511))]
 }
