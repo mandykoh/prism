@@ -38,6 +38,12 @@ func From8Bit(srgb8 uint8) float64 {
 	return sRGB8ToLinearLUT[srgb8]
 }
 
+/// LuminanceRec709 returns the luminance of the given linear RGB values as
+/// specified by Rec. 709.
+func LuminanceRec709(r, g, b float64) float64 {
+	return 0.2126*r + 0.7152*g + 0.0722*b
+}
+
 /// To8Bit converts a linear value to an 8-bit sRGB encoded value, clipping the
 /// linear value to between 0.0 and 1.0.
 ///
