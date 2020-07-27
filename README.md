@@ -6,7 +6,7 @@
 
 `prism` aims to become a set of utilities for practical colour management and conversion.
 
-`prism` currently implements simple sRGB encoding/decoding, with optional fast LUT-based conversion.
+`prism` currently implements simple encoding/decoding between sRGB and linear colour, with optional fast LUT-based conversion.
 
 See the [API documentation](https://godoc.org/github.com/mandykoh/prism) for more details.
 
