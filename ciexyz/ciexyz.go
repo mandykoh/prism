@@ -1,6 +1,7 @@
 package ciexyz
 
 import (
+	"github.com/mandykoh/prism/matrix"
 	"math"
 )
 
@@ -22,76 +23,38 @@ func componentToLAB(v float32, wp float32) float64 {
 	return (constantK*r + 16) / 116.0
 }
 
-func invertMatrix(m [3][3]float64) [3][3]float64 {
-	o := [3][3]float64{
-		{
-			m[1][1]*m[2][2] - m[2][1]*m[1][2],
-			-(m[0][1]*m[2][2] - m[2][1]*m[0][2]),
-			m[0][1]*m[1][2] - m[1][1]*m[0][2],
-		},
-		{
-			-(m[1][0]*m[2][2] - m[2][0]*m[1][2]),
-			m[0][0]*m[2][2] - m[2][0]*m[0][2],
-			-(m[0][0]*m[1][2] - m[1][0]*m[0][2]),
-		},
-		{
-			m[1][0]*m[2][1] - m[2][0]*m[1][1],
-			-(m[0][0]*m[2][1] - m[2][0]*m[0][1]),
-			m[0][0]*m[1][1] - m[1][0]*m[0][1],
-		},
-	}
-
-	det := m[0][0]*o[0][0] + m[1][0]*o[0][1] + m[2][0]*o[0][2]
-	if det == 0 {
-		panic("matrix is non-invertible")
-	}
-
-	o[0][0] /= det
-	o[0][1] /= det
-	o[0][2] /= det
-	o[1][0] /= det
-	o[1][1] /= det
-	o[1][2] /= det
-	o[2][0] /= det
-	o[2][1] /= det
-	o[2][2] /= det
-
-	return o
-}
-
 // TransformFromXYZForPrimaries generates the column matrix for converting
 // colour values from CIE XYZ to a space defined by three RGB primary
 // chromaticities and a reference white.
-func TransformFromXYZForPrimaries(rx, ry, gx, gy, bx, by float64, whitePoint Color) [3][3]float64 {
-	t := TransformToXYZForPrimaries(rx, ry, gx, gy, bx, by, whitePoint)
-	return invertMatrix(t)
+func TransformFromXYZForPrimaries(rx, ry, gx, gy, bx, by float64, whitePoint Color) matrix.Matrix3 {
+	return TransformToXYZForPrimaries(rx, ry, gx, gy, bx, by, whitePoint).Inverse()
 }
 
 // TransformToXYZForPrimaries generates the column matrix for converting colour
 // values from a space defined by three primary RGB chromaticities and a
 // reference white to CIE XYZ.
-func TransformToXYZForPrimaries(rx, ry, gx, gy, bx, by float64, whitePoint Color) [3][3]float64 {
-	m := [3][3]float64{
+func TransformToXYZForPrimaries(rx, ry, gx, gy, bx, by float64, whitePoint Color) matrix.Matrix3 {
+	m := matrix.Matrix3{
 		transformForComponent(rx, ry),
 		transformForComponent(gx, gy),
 		transformForComponent(bx, by),
 	}
 
-	i := invertMatrix(m)
+	s := m.Inverse().MulV(matrix.Vector3{
+		float64(whitePoint.X),
+		float64(whitePoint.Y),
+		float64(whitePoint.Z),
+	})
 
-	sr := float64(whitePoint.X)*i[0][0] + float64(whitePoint.Y)*i[1][0] + float64(whitePoint.Z)*i[2][0]
-	sg := float64(whitePoint.X)*i[0][1] + float64(whitePoint.Y)*i[1][1] + float64(whitePoint.Z)*i[2][1]
-	sb := float64(whitePoint.X)*i[0][2] + float64(whitePoint.Y)*i[1][2] + float64(whitePoint.Z)*i[2][2]
-
-	return [3][3]float64{
-		{sr * m[0][0], sr * m[0][1], sr * m[0][2]},
-		{sg * m[1][0], sg * m[1][1], sg * m[1][2]},
-		{sb * m[2][0], sb * m[2][1], sb * m[2][2]},
+	return matrix.Matrix3{
+		m[0].MulS(s[0]),
+		m[1].MulS(s[1]),
+		m[2].MulS(s[2]),
 	}
 }
 
-func transformForComponent(vx, vy float64) [3]float64 {
-	return [...]float64{
+func transformForComponent(vx, vy float64) matrix.Vector3 {
+	return matrix.Vector3{
 		vx / vy,
 		1.0,
 		(1 - vx - vy) / vy,
