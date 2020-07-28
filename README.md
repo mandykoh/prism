@@ -6,7 +6,9 @@
 
 `prism` aims to become a set of utilities for practical colour management and conversion.
 
-`prism` currently implements encoding/decoding linear colour from sRGB and Adobe RGB with optional fast LUT-based conversion, and conversion to and from CIE XYZ and CIE Lab.
+`prism` currently implements encoding/decoding linear colour from sRGB, Adobe RGB, and Pro Photo RGB with optional fast LUT-based conversion, and conversion to and from CIE XYZ and CIE Lab.
+
+`prism` does not yet support detection/extraction/embedding of tagged colour profiles in images, chromatic adaptation between reference white points, nor conversions between arbitrary ICC profiles.
 
 See the [API documentation](https://godoc.org/github.com/mandykoh/prism) for more details.
 

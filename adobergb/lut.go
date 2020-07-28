@@ -76,8 +76,8 @@ var linearToAdobeRGB8LUT = [512]uint8{
 // value between 0.0 and 1.0.
 //
 // This implementation uses a fast look-up table without sacrificing accuracy.
-func From8Bit(srgb8 uint8) float32 {
-	return adobeRGB8ToLinearLUT[srgb8]
+func From8Bit(rgb8 uint8) float32 {
+	return adobeRGB8ToLinearLUT[rgb8]
 }
 
 // To8Bit converts a linear value to an 8-bit Adobe RGB encoded value, clipping

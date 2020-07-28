@@ -1,4 +1,4 @@
-package srgb
+package prophotorgb
 
 import (
 	"github.com/mandykoh/prism/ciexyz"
@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-// Color represents a linear normalised colour in sRGB space.
+// Color represents a linear normalised colour in Pro Photo RGB space.
 type Color struct {
 	R float32
 	G float32
@@ -33,15 +33,15 @@ func (c Color) ToNRGBA() color.NRGBA {
 // ToXYZ returns a CIE XYZ representation of this colour.
 func (c Color) ToXYZ() ciexyz.Color {
 	return ciexyz.Color{
-		X: c.R*0.4124564011253347 + c.G*0.35757608771164573 + c.B*0.18043748186614458,
-		Y: c.R*0.2126728318302507 + c.G*0.7151521754232915 + c.B*0.07217499274645783,
-		Z: c.R*0.019333893802750045 + c.G*0.11919202923721521 + c.B*0.9503040711616949,
+		X: c.R*0.7976641331391671 + c.G*0.13518832725191376 + c.B*0.031347559445345105,
+		Y: c.R*0.2880378116561397 + c.G*0.711872251906302 + c.B*8.99364375583703e-05,
+		Z: c.R*0 + c.G*0 + c.B*0.8251000046730042,
 		A: c.A,
 	}
 }
 
 // ColorFromNRGBA creates a Color instance by interpreting an 8-bit NRGBA colour
-// as sRGB encoded.
+// as Pro Photo RGB encoded.
 func ColorFromNRGBA(c color.NRGBA) Color {
 	return Color{
 		R: From8Bit(c.R),
@@ -51,12 +51,12 @@ func ColorFromNRGBA(c color.NRGBA) Color {
 	}
 }
 
-// ColorFromXYZ creates an SRGB Color instance from a CIE XYZ colour.
+// ColorFromXYZ creates a Pro Photo RGB Color instance from a CIE XYZ colour.
 func ColorFromXYZ(c ciexyz.Color) Color {
 	return Color{
-		R: c.X*3.2404544603802004 + c.Y*-1.5371386542829153 + c.Z*-0.4985314554431076,
-		G: c.X*-0.9692660032150083 + c.Y*1.8760107926266538 + c.Z*0.041556016360319,
-		B: c.X*0.05564343139092609 + c.Y*-0.20402591510006216 + c.Z*1.057225196427595,
+		R: c.X*1.3459598353730142 + c.Y*-0.25560493221231595 + c.Z*-0.05110843232886563,
+		G: c.X*-0.5446023840931071 + c.Y*1.5081693133113774 + c.Z*0.02052638000029258,
+		B: c.X*0 + c.Y*-0 + c.Z*1.2119742992806193,
 		A: c.A,
 	}
 }

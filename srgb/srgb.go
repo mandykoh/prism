@@ -36,7 +36,7 @@ func ConvertLinearTo8Bit(v float64) uint8 {
 // critical, see From8Bit.
 func Convert8BitToLinear(v uint8) float64 {
 	vNormalised := float64(v) / 255
-	if vNormalised <= 0.04045 {
+	if vNormalised <= 0.0031308*12.92 {
 		return vNormalised / 12.92
 	}
 	return math.Pow((vNormalised+0.055)/1.055, 2.4)

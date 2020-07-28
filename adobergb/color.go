@@ -19,7 +19,7 @@ func (c Color) Luminance() float32 {
 	return 0.2126*c.R + 0.7152*c.G + 0.0722*c.B
 }
 
-// To8Bit returns an encoded 8-bit NRGBA representation of this colour suitable
+// ToNRGBA returns an encoded 8-bit NRGBA representation of this colour suitable
 // for use with instances of image.NRGBA.
 func (c Color) ToNRGBA() color.NRGBA {
 	return color.NRGBA{
