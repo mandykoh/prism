@@ -8,10 +8,10 @@ import (
 
 // Color represents a linear normalised colour in sRGB space.
 type Color struct {
-	R float64
-	G float64
-	B float64
-	A float64
+	R float32
+	G float32
+	B float32
+	A float32
 }
 
 // To8Bit returns an encoded 8-bit NRGBA representation of this colour suitable
@@ -21,7 +21,7 @@ func (c Color) To8Bit() color.NRGBA {
 		R: To8Bit(c.R),
 		G: To8Bit(c.G),
 		B: To8Bit(c.B),
-		A: uint8(math.Max(math.Min(c.A, 1), 0) * 255),
+		A: uint8(math.Max(math.Min(float64(c.A), 1), 0) * 255),
 	}
 }
 
@@ -42,7 +42,7 @@ func ColorFromNRGBA(c color.NRGBA) Color {
 		R: From8Bit(c.R),
 		G: From8Bit(c.G),
 		B: From8Bit(c.B),
-		A: float64(c.A) * 255,
+		A: float32(c.A) * 255,
 	}
 }
 
