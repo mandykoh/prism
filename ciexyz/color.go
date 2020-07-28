@@ -5,9 +5,6 @@ import (
 	"math"
 )
 
-var WhitePointD50 = Color{0.9642, 1.0, 0.8251, 1.0}
-var WhitePointD65 = Color{0.95047, 1.0, 1.08883, 1.0}
-
 const constantE = 216.0 / 24389.0
 const constantK = 24389.0 / 27.0
 
@@ -56,19 +53,4 @@ func ColorFromLAB(lab cielab.Color, whitePoint Color) Color {
 		Z: float32(zr * float64(whitePoint.Z)),
 		A: lab.Alpha,
 	}
-}
-
-func componentFromLAB(f float64) float64 {
-	if f3 := math.Pow(f, 3); f3 > constantE {
-		return f3
-	}
-	return (116*f - 16) / constantK
-}
-
-func componentToLAB(v float32, wp float32) float64 {
-	r := float64(v) / float64(wp)
-	if r > constantE {
-		return math.Pow(r, 1.0/3.0)
-	}
-	return (constantK*r + 16) / 116.0
 }
