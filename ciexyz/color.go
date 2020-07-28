@@ -5,6 +5,9 @@ import (
 	"math"
 )
 
+var WhitePointD50 = Color{0.9642, 1.0, 0.8251, 1.0}
+var WhitePointD65 = Color{0.95047, 1.0, 1.08883, 1.0}
+
 const constantE = 216.0 / 24389.0
 const constantK = 24389.0 / 27.0
 
