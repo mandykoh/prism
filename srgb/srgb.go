@@ -1,6 +1,18 @@
 package srgb
 
-import "math"
+import (
+	"github.com/mandykoh/prism/ciexyz"
+	"math"
+)
+
+const PrimaryRedX = 0.64
+const PrimaryRedY = 0.33
+const PrimaryGreenX = 0.3
+const PrimaryGreenY = 0.6
+const PrimaryBlueX = 0.15
+const PrimaryBlueY = 0.06
+
+var StandardWhitePoint = ciexyz.WhitePointD65
 
 // ConvertLinearTo8Bit converts a linear value to an 8-bit sRGB encoded value,
 // clipping the linear value to between 0.0 and 1.0.

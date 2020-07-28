@@ -33,9 +33,9 @@ func (c Color) ToNRGBA() color.NRGBA {
 // ToXYZ returns a CIE XYZ representation of this colour.
 func (c Color) ToXYZ() ciexyz.Color {
 	return ciexyz.Color{
-		X: c.R*0.4124564 + c.G*0.3575761 + c.B*0.1804375,
-		Y: c.R*0.2126729 + c.G*0.7151522 + c.B*0.0721750,
-		Z: c.R*0.0193339 + c.G*0.1191920 + c.B*0.9503041,
+		X: c.R*0.4124564011253347 + c.G*0.35757608771164573 + c.B*0.18043748186614458,
+		Y: c.R*0.2126728318302507 + c.G*0.7151521754232915 + c.B*0.07217499274645783,
+		Z: c.R*0.019333893802750045 + c.G*0.11919202923721521 + c.B*0.9503040711616949,
 		A: c.A,
 	}
 }
@@ -54,9 +54,9 @@ func ColorFromNRGBA(c color.NRGBA) Color {
 // ColorFromXYZ creates an SRGB Color instance from a CIE XYZ colour.
 func ColorFromXYZ(c ciexyz.Color) Color {
 	return Color{
-		R: c.X*3.2404542 + c.Y*-1.5371385 + c.Z*-0.4985314,
-		G: c.X*-0.9692660 + c.Y*1.8760108 + c.Z*0.0415560,
-		B: c.X*0.0556434 + c.Y*-0.2040259 + c.Z*1.0572252,
+		R: c.X*3.2404544603802004 + c.Y*-1.5371386542829153 + c.Z*-0.4985314554431076,
+		G: c.X*-0.9692660032150083 + c.Y*1.8760107926266538 + c.Z*0.041556016360319,
+		B: c.X*0.05564343139092609 + c.Y*-0.20402591510006216 + c.Z*1.057225196427595,
 		A: c.A,
 	}
 }
