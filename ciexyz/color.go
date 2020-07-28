@@ -16,6 +16,7 @@ type Color struct {
 	A float32
 }
 
+// ToLAB converts this colour to a CIE Lab colour given a reference white point.
 func (c Color) ToLAB(whitePoint Color) cielab.Color {
 	fx := componentToLAB(c.X, whitePoint.X)
 	fy := componentToLAB(c.Y, whitePoint.Y)
@@ -29,17 +30,15 @@ func (c Color) ToLAB(whitePoint Color) cielab.Color {
 	}
 }
 
+// ColorFromLAB creates a CIE XYZ Color instance from a CIE LAB representation
+// given a reference white point.
 func ColorFromLAB(lab cielab.Color, whitePoint Color) Color {
 	fy := (float64(lab.L) + 16) / 116
 	fx := float64(lab.A)/500 + fy
 	fz := fy - float64(lab.B)/200
 
-	var xr float64
-	if fx3 := math.Pow(fx, 3); fx3 > constantE {
-		xr = fx3
-	} else {
-		xr = (116*fx - 16) / constantK
-	}
+	xr := componentFromLAB(fx)
+	zr := componentFromLAB(fz)
 
 	var yr float64
 	if lab.L > constantK*constantE {
@@ -48,19 +47,19 @@ func ColorFromLAB(lab cielab.Color, whitePoint Color) Color {
 		yr = float64(lab.L) / constantK
 	}
 
-	var zr float64
-	if fz3 := math.Pow(fz, 3); fz3 > constantE {
-		zr = fz3
-	} else {
-		zr = (116*fz - 16) / constantK
-	}
-
 	return Color{
 		X: float32(xr * float64(whitePoint.X)),
 		Y: float32(yr * float64(whitePoint.Y)),
 		Z: float32(zr * float64(whitePoint.Z)),
 		A: lab.Alpha,
 	}
+}
+
+func componentFromLAB(f float64) float64 {
+	if f3 := math.Pow(f, 3); f3 > constantE {
+		return f3
+	}
+	return (116*f - 16) / constantK
 }
 
 func componentToLAB(v float32, wp float32) float64 {
