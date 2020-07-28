@@ -42,7 +42,7 @@ func ColorFromNRGBA(c color.NRGBA) Color {
 		R: From8Bit(c.R),
 		G: From8Bit(c.G),
 		B: From8Bit(c.B),
-		A: float32(c.A) * 255,
+		A: float32(c.A) / 255,
 	}
 }
 
