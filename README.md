@@ -6,7 +6,7 @@
 
 `prism` aims to become a set of utilities for practical colour management and conversion.
 
-`prism` currently implements encoding/decoding from sRGB and Adobe RGB to CIE XYZ and linear colour and vice versa, with optional fast LUT-based conversion.
+`prism` currently implements encoding/decoding linear colour from sRGB and Adobe RGB with optional fast LUT-based conversion, and conversion to and from CIE XYZ and CIE Lab.
 
 See the [API documentation](https://godoc.org/github.com/mandykoh/prism) for more details.
 
