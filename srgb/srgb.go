@@ -38,11 +38,6 @@ func From8Bit(srgb8 uint8) float32 {
 	return sRGB8ToLinearLUT[srgb8]
 }
 
-// Luminance returns the perceptual luminance of the given linear RGB values.
-func Luminance(r, g, b float32) float32 {
-	return 0.2126*r + 0.7152*g + 0.0722*b
-}
-
 // To8Bit converts a linear value to an 8-bit sRGB encoded value, clipping the
 // linear value to between 0.0 and 1.0.
 //
