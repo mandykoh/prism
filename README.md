@@ -15,7 +15,7 @@ This software is made available under an [MIT license](LICENSE).
 
 ## Example usage
 
-Image data provided by the standard [`image`](https://golang.org/pkg/image/) package doesn’t come with colour profile information. However, interpreting the image data directly as raw, linear RGB values for image processing purposes is unlikely to produce good or correct results as most images are encoded with non-linear values referencing specific colour spaces.
+Image data provided by the standard [`image`](https://golang.org/pkg/image/) package doesn’t come with colour profile information. However, interpreting the image data directly as raw, linear RGB values for image processing purposes is unlikely to produce good or correct results as nearly all images are encoded with non-linear values referencing specific colour spaces.
 
 `prism` can be used to convert between encoded colour values and a normalised, linear representation more suitable for image processing, and subsequently converting back to encoded colour values in (potentially) other colour spaces.
 
