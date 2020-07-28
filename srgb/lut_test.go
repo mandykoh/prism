@@ -6,7 +6,7 @@ func TestFrom8Bit(t *testing.T) {
 
 	t.Run("provides linear values for all possible 8-bit inputs", func(t *testing.T) {
 		for i := 0; i < 256; i++ {
-			if expected, actual := Convert8BitToLinear(uint8(i)), From8Bit(uint8(i)); expected != actual {
+			if expected, actual := float32(Convert8BitToLinear(uint8(i))), From8Bit(uint8(i)); expected != actual {
 				t.Errorf("Expected converted value to be %v but was %v", expected, actual)
 			}
 		}

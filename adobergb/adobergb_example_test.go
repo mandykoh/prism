@@ -8,7 +8,7 @@ import (
 func ExampleConvert8BitToLinear_generateLUT() {
 	lut := [256]float32{}
 	for i := range lut {
-		lut[i] = adobergb.Convert8BitToLinear(uint8(i))
+		lut[i] = float32(adobergb.Convert8BitToLinear(uint8(i)))
 	}
 
 	fmt.Printf("[256]float32{")
@@ -59,7 +59,7 @@ func ExampleConvert8BitToLinear_generateLUT() {
 func ExampleConvertLinearTo8Bit_generateLUT() {
 	lut := [512]uint8{}
 	for i := range lut {
-		lut[i] = adobergb.ConvertLinearTo8Bit(float32(i) / 511)
+		lut[i] = adobergb.ConvertLinearTo8Bit(float64(i) / 511)
 	}
 
 	fmt.Printf("[512]uint8{")

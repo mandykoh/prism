@@ -7,8 +7,8 @@ import "math"
 //
 // This implementation uses an exact analytical method. If performance is
 // critical, see To8Bit.
-func ConvertLinearTo8Bit(v float32) uint8 {
-	scaled := math.Pow(float64(v), 256.0/563)
+func ConvertLinearTo8Bit(v float64) uint8 {
+	scaled := math.Pow(v, 256.0/563)
 	return uint8(math.Round(math.Min(math.Max(scaled, 0.0), 1.0) * 255))
 }
 
@@ -17,6 +17,6 @@ func ConvertLinearTo8Bit(v float32) uint8 {
 //
 // This implementation uses an exact analytical method. If performance is
 // critical, see From8Bit.
-func Convert8BitToLinear(v uint8) float32 {
-	return float32(math.Pow(float64(v)/255, 563.0/256))
+func Convert8BitToLinear(v uint8) float64 {
+	return math.Pow(float64(v)/255, 563.0/256)
 }
