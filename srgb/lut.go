@@ -1,5 +1,7 @@
 package srgb
 
+import "math"
+
 var sRGB8ToLinearLUT = [256]float32{
 	0, 0.000303527, 0.000607054, 0.000910581, 0.001214108, 0.001517635, 0.001821162, 0.0021246888,
 	0.002428216, 0.0027317428, 0.00303527, 0.0033465358, 0.0036765074, 0.004024717, 0.004391442, 0.0047769533,
@@ -68,4 +70,22 @@ var linearToSRGB8LUT = [512]uint8{
 	244, 245, 245, 245, 245, 246, 246, 246, 246, 246, 247, 247, 247, 247, 248, 248,
 	248, 248, 249, 249, 249, 249, 249, 250, 250, 250, 250, 251, 251, 251, 251, 251,
 	252, 252, 252, 252, 253, 253, 253, 253, 253, 254, 254, 254, 254, 255, 255, 255,
+}
+
+// From8Bit converts an 8-bit sRGB encoded value to a normalised linear value
+// between 0.0 and 1.0.
+//
+// This implementation uses a fast look-up table without sacrificing accuracy.
+func From8Bit(srgb8 uint8) float32 {
+	return sRGB8ToLinearLUT[srgb8]
+}
+
+// To8Bit converts a linear value to an 8-bit sRGB encoded value, clipping the
+// linear value to between 0.0 and 1.0.
+//
+// This implementation uses a fast look-up table and is approximate. For more
+// accuracy, see ConvertLinearTo8Bit.
+func To8Bit(linear float32) uint8 {
+	clipped := math.Min(math.Max(float64(linear), 0), 1)
+	return linearToSRGB8LUT[int(math.Round(clipped*511))]
 }

@@ -20,21 +20,3 @@ func ConvertLinearTo8Bit(v float32) uint8 {
 func Convert8BitToLinear(v uint8) float32 {
 	return float32(math.Pow(float64(v)/255, 563.0/256))
 }
-
-// From8Bit converts an 8-bit Adobe RGB encoded value to a normalised linear
-// value between 0.0 and 1.0.
-//
-// This implementation uses a fast look-up table without sacrificing accuracy.
-func From8Bit(srgb8 uint8) float32 {
-	return adobeRGB8ToLinearLUT[srgb8]
-}
-
-// To8Bit converts a linear value to an 8-bit Adobe RGB encoded value, clipping
-// the linear value to between 0.0 and 1.0.
-//
-// This implementation uses a fast look-up table and is approximate. For more
-// accuracy, see ConvertLinearTo8Bit.
-func To8Bit(linear float32) uint8 {
-	clipped := math.Min(math.Max(float64(linear), 0), 1)
-	return linearToAdobeRGB8LUT[int(math.Round(clipped*511))]
-}

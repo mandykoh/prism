@@ -1,5 +1,7 @@
 package adobergb
 
+import "math"
+
 var adobeRGB8ToLinearLUT = [256]float32{
 	0, 5.099079e-06, 2.3416529e-05, 5.7119676e-05, 0.00010753587, 0.00017566275, 0.00026231102, 0.00036816896,
 	0.0004938376, 0.0006398523, 0.00080669706, 0.0009948143, 0.0012046124, 0.0014364709, 0.0016907445, 0.001967767,
@@ -68,4 +70,22 @@ var linearToAdobeRGB8LUT = [512]uint8{
 	244, 244, 245, 245, 245, 245, 245, 246, 246, 246, 246, 247, 247, 247, 247, 248,
 	248, 248, 248, 249, 249, 249, 249, 249, 250, 250, 250, 250, 251, 251, 251, 251,
 	252, 252, 252, 252, 252, 253, 253, 253, 253, 254, 254, 254, 254, 255, 255, 255,
+}
+
+// From8Bit converts an 8-bit Adobe RGB encoded value to a normalised linear
+// value between 0.0 and 1.0.
+//
+// This implementation uses a fast look-up table without sacrificing accuracy.
+func From8Bit(srgb8 uint8) float32 {
+	return adobeRGB8ToLinearLUT[srgb8]
+}
+
+// To8Bit converts a linear value to an 8-bit Adobe RGB encoded value, clipping
+// the linear value to between 0.0 and 1.0.
+//
+// This implementation uses a fast look-up table and is approximate. For more
+// accuracy, see ConvertLinearTo8Bit.
+func To8Bit(linear float32) uint8 {
+	clipped := math.Min(math.Max(float64(linear), 0), 1)
+	return linearToAdobeRGB8LUT[int(math.Round(clipped*511))]
 }
