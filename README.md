@@ -14,6 +14,8 @@ See the [API documentation](https://godoc.org/github.com/mandykoh/prism) for mor
 
 This software is made available under an [MIT license](LICENSE).
 
+Much of this implementation is based on information provided by [Bruce Lindbloom](http://www.brucelindbloom.com) and [Charles Poynton](http://poynton.ca), among many others who generously contribute to public edification on the esoteric science of colour.
+
 
 ## Example usage
 
