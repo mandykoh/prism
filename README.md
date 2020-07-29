@@ -17,9 +17,12 @@ This software is made available under an [MIT license](LICENSE).
 
 ## Example usage
 
-Image data provided by the standard [`image`](https://golang.org/pkg/image/) package doesn’t come with colour profile information. However, interpreting the image data directly as raw, linear RGB values for image processing purposes is unlikely to produce good or correct results as nearly all images are encoded with non-linear values referencing specific colour spaces.
+Image data provided by the standard [`image`](https://golang.org/pkg/image/) package doesn’t come with colour profile information. However, interpreting the image data directly as raw, linear RGB values for image processing purposes is unlikely to produce good or correct results as nearly all images are encoded with non-linear values referencing specific colour spaces. Poorly converted images can themselves result in loss or exaggeration of saturation and contrast, colour shifts, and loss of fidelity, while using such images for image processing will result in incorrect blending, sharpening, blurring, etc.
 
 `prism` can be used to convert between encoded colour values and a normalised, linear representation more suitable for image processing, and subsequently converting back to encoded colour values in (potentially) other colour spaces.
+
+
+### Colour conversion
 
 The following example converts Adobe RGB (1998) pixel data to sRGB. It retrieves a pixel from an [NRGBA image](https://golang.org/pkg/image/#NRGBA), decodes it as an Adobe RGB (1998) linearised colour value, then converts that to an sRGB colour value via the CIE XYZ intermediate colour space, before finally encoding the result as an 8-bit sRGB value suitable for writing back to an `image.NRGBA`:
 
@@ -29,3 +32,26 @@ ac, alpha := adobergb.ColorFromNRGBA(c)     // Interpret image pixel as Adobe RG
 sc := srgb.ColorFromXYZ(ac.ToXYZ())         // Convert to XYZ, then from XYZ to sRGB linear representation
 outputImg.SetNRGBA(x, y, sc.ToNRGBA(alpha)) // Write sRGB-encoded value to output image
 ``` 
+
+
+### Chromatic adaptation
+
+Adobe RGB (1998) and sRGB are both specified referring to a standard D65 white point. However, Pro Photo RGB references a D50 white point. When converting between white points, a chromatic adaptation is required to compensate for a shift in warmness/coolness that would otherwise occur.
+
+The following example prepares such a chromatic adaptation (using the `TransformBetweenWhitePoints` function), then uses it in converting from Pro Photo RGB to sRGB:
+
+```go
+adaptation := ciexyz.TransformBetweenWhitePoints(
+    prophotorgb.StandardWhitePoint,         // From D50
+    srgb.StandardWhitePoint,                // To D65
+)
+
+c := inputImg.NRGBAAt(x, y)                 // Take input colour value
+pc, alpha := prophotorgb.ColorFromNRGBA(c)  // Interpret image pixel as Pro Photo RGB and convert to linear representation
+
+xyz := pc.ToXYZ()                           // Convert from Pro Photo RGB to CIE XYZ
+xyz = adaptation.Apply(xyz)                 // Apply chromatic adaptation from D50 to D65
+
+sc := srgb.ColorFromXYZ(xyz)                // Convert from CIE XYZ to sRGB linear representation
+outputImg.SetNRGBA(x, y, sc.ToNRGBA(alpha)) // Write sRGB-encoded value to output image
+```
