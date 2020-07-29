@@ -19,9 +19,9 @@ func (ca ChromaticAdaptation) Apply(c Color) Color {
 	return ColorFromV(matrix.Matrix3(ca).MulV(c.ToV()))
 }
 
-// TransformBetweenWhitePoints returns a ChromaticAdaptation from the source white point
+// AdaptBetweenWhitePoints returns a ChromaticAdaptation from the source white point
 // to the destination.
-func TransformBetweenWhitePoints(srcWhite Color, dstWhite Color) ChromaticAdaptation {
+func AdaptBetweenWhitePoints(srcWhite Color, dstWhite Color) ChromaticAdaptation {
 	srcV := srcWhite.ToV()
 	srcCSP := bradfordForward.MulV(srcV)
 
