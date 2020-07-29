@@ -8,7 +8,7 @@
 
 `prism` currently implements encoding/decoding linear colour from sRGB, Adobe RGB, and Pro Photo RGB encodings with optional fast LUT-based conversion, and conversion to and from CIE XYZ and CIE Lab. Chromatic adaptation in XYZ space between different white points is also supported.
 
-`prism` does not yet support detection/extraction/embedding of tagged colour profiles in images, nor conversions between arbitrary ICC profiles.
+`prism` does not yet support detection/extraction/embedding of tagged colour profiles in images, conversions between arbitrary ICC profiles, nor CMYK.
 
 See the [API documentation](https://godoc.org/github.com/mandykoh/prism) for more details.
 
