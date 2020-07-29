@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/mandykoh/prism)](https://goreportcard.com/report/github.com/mandykoh/prism)
 [![Build Status](https://travis-ci.org/mandykoh/prism.svg?branch=main)](https://travis-ci.org/mandykoh/prism)
 
-`prism` aims to become a set of utilities for practical colour management and conversion.
+`prism` aims to become a set of utilities for practical colour management and conversion in pure Go.
 
 `prism` currently implements encoding/decoding linear colour from sRGB, Adobe RGB, and Pro Photo RGB encodings with optional fast LUT-based conversion, and conversion to and from CIE XYZ and CIE Lab. Chromatic adaptation in XYZ space between different white points is also supported.
 
