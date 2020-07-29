@@ -14,7 +14,6 @@ type Color struct {
 	X float32
 	Y float32
 	Z float32
-	A float32
 }
 
 // ToLAB converts this colour to a CIE Lab colour given a reference white point.
@@ -24,10 +23,9 @@ func (c Color) ToLAB(whitePoint Color) cielab.Color {
 	fz := componentToLAB(c.Z, whitePoint.Z)
 
 	return cielab.Color{
-		L:     float32(116*fy - 16),
-		A:     float32(500 * (fx - fy)),
-		B:     float32(200 * (fy - fz)),
-		Alpha: c.A,
+		L: float32(116*fy - 16),
+		A: float32(500 * (fx - fy)),
+		B: float32(200 * (fy - fz)),
 	}
 }
 
@@ -57,7 +55,6 @@ func ColorFromLAB(lab cielab.Color, whitePoint Color) Color {
 		X: float32(xr * float64(whitePoint.X)),
 		Y: float32(yr * float64(whitePoint.Y)),
 		Z: float32(zr * float64(whitePoint.Z)),
-		A: lab.Alpha,
 	}
 }
 
@@ -67,6 +64,5 @@ func ColorFromV(v matrix.Vector3) Color {
 		X: float32(v[0]),
 		Y: float32(v[1]),
 		Z: float32(v[2]),
-		A: 1,
 	}
 }

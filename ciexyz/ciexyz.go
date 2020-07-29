@@ -5,8 +5,8 @@ import (
 	"math"
 )
 
-var WhitePointD50 = Color{0.9642, 1.0, 0.8251, 1.0}
-var WhitePointD65 = Color{0.95047, 1.0, 1.08883, 1.0}
+var WhitePointD50 = Color{0.9642, 1.0, 0.8251}
+var WhitePointD65 = Color{0.95047, 1.0, 1.08883}
 
 func componentFromLAB(f float64) float64 {
 	if f3 := math.Pow(f, 3); f3 > constantE {
