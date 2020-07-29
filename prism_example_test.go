@@ -80,7 +80,7 @@ func writeImage(path string, img image.Image) {
 	log.Printf("Output written to %s", path)
 }
 
-func Example_ConvertAdobeRGBToSRGB() {
+func Example_convertAdobeRGBToSRGB() {
 	referenceImg := loadImage("test-images/pizza-rgb8-srgb.jpg")
 	inputImg := loadImage("test-images/pizza-rgb8-adobergb.jpg")
 
@@ -104,7 +104,7 @@ func Example_ConvertAdobeRGBToSRGB() {
 	// Output: Images match
 }
 
-func Example_ConvertProPhotoRGBToSRGB() {
+func Example_convertProPhotoRGBToSRGB() {
 	referenceImg := loadImage("test-images/pizza-rgb8-srgb.jpg")
 	inputImg := loadImage("test-images/pizza-rgb8-prophotorgb.jpg")
 
@@ -137,7 +137,7 @@ func Example_ConvertProPhotoRGBToSRGB() {
 	// Output: Images match
 }
 
-func Example_ConvertSRGBToAdobeRGB() {
+func Example_convertSRGBToAdobeRGB() {
 	referenceImg := loadImage("test-images/pizza-rgb8-adobergb.jpg")
 	inputImg := loadImage("test-images/pizza-rgb8-srgb.jpg")
 
