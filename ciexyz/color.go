@@ -2,6 +2,7 @@ package ciexyz
 
 import (
 	"github.com/mandykoh/prism/cielab"
+	"github.com/mandykoh/prism/ciexyy"
 	"github.com/mandykoh/prism/matrix"
 	"math"
 )
@@ -64,5 +65,14 @@ func ColorFromV(v matrix.Vector3) Color {
 		X: float32(v[0]),
 		Y: float32(v[1]),
 		Z: float32(v[2]),
+	}
+}
+
+// ColorFromXYY creates a CIE XYZ Color instance from a CIE xyY representation.
+func ColorFromXYY(c ciexyy.Color) Color {
+	return Color{
+		X: c.X * c.YY / c.Y,
+		Y: c.YY,
+		Z: (1 - c.X - c.Y) * c.YY / c.Y,
 	}
 }

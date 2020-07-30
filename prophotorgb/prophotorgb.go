@@ -1,18 +1,14 @@
 package prophotorgb
 
 import (
-	"github.com/mandykoh/prism/ciexyz"
+	"github.com/mandykoh/prism/ciexyy"
 	"math"
 )
 
-const PrimaryRedX = 0.734699
-const PrimaryRedY = 0.265301
-const PrimaryGreenX = 0.159597
-const PrimaryGreenY = 0.840403
-const PrimaryBlueX = 0.036598
-const PrimaryBlueY = 0.000105
-
-var StandardWhitePoint = ciexyz.WhitePointD50
+var PrimaryRed = ciexyy.Color{X: 0.734699, Y: 0.265301, YY: 1}
+var PrimaryGreen = ciexyy.Color{X: 0.159597, Y: 0.840403, YY: 1}
+var PrimaryBlue = ciexyy.Color{X: 0.036598, Y: 0.000105, YY: 1}
+var StandardWhitePoint = ciexyy.D50
 
 const constantE = 1.0 / 512.0
 

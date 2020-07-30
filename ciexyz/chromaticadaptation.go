@@ -1,6 +1,9 @@
 package ciexyz
 
-import "github.com/mandykoh/prism/matrix"
+import (
+	"github.com/mandykoh/prism/ciexyy"
+	"github.com/mandykoh/prism/matrix"
+)
 
 var bradfordForward = matrix.Matrix3{
 	{0.8951000, -0.7502000, 0.0389000},
@@ -19,9 +22,15 @@ func (ca ChromaticAdaptation) Apply(c Color) Color {
 	return ColorFromV(matrix.Matrix3(ca).MulV(c.ToV()))
 }
 
-// AdaptBetweenWhitePoints returns a ChromaticAdaptation from the source white
-// point to the destination.
-func AdaptBetweenWhitePoints(srcWhite Color, dstWhite Color) ChromaticAdaptation {
+// AdaptBetweenXYYWhitePoints returns a ChromaticAdaptation from the source
+// white point to the destination.
+func AdaptBetweenXYYWhitePoints(srcWhite ciexyy.Color, dstWhite ciexyy.Color) ChromaticAdaptation {
+	return AdaptBetweenXYZWhitePoints(ColorFromXYY(srcWhite), ColorFromXYY(dstWhite))
+}
+
+// AdaptBetweenXYZWhitePoints returns a ChromaticAdaptation from the source
+// white point to the destination.
+func AdaptBetweenXYZWhitePoints(srcWhite Color, dstWhite Color) ChromaticAdaptation {
 	srcV := srcWhite.ToV()
 	srcCSP := bradfordForward.MulV(srcV)
 

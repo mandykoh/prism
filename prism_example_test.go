@@ -108,7 +108,7 @@ func Example_convertProPhotoRGBToSRGB() {
 	referenceImg := loadImage("test-images/pizza-rgb8-srgb.jpg")
 	inputImg := loadImage("test-images/pizza-rgb8-prophotorgb.jpg")
 
-	adaptation := ciexyz.AdaptBetweenWhitePoints(
+	adaptation := ciexyz.AdaptBetweenXYYWhitePoints(
 		prophotorgb.StandardWhitePoint,
 		srgb.StandardWhitePoint,
 	)

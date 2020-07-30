@@ -1,12 +1,13 @@
 package ciexyz
 
 import (
+	"github.com/mandykoh/prism/ciexyy"
 	"github.com/mandykoh/prism/matrix"
 	"math"
 )
 
-var WhitePointD50 = Color{0.9642, 1.0, 0.8251}
-var WhitePointD65 = Color{0.95047, 1.0, 1.08883}
+var D50 = Color{0.9642, 1.0, 0.8251}
+var D65 = Color{0.95047, 1.0, 1.08883}
 
 func componentFromLAB(f float64) float64 {
 	if f3 := math.Pow(f, 3); f3 > constantE {
@@ -26,37 +27,25 @@ func componentToLAB(v float32, wp float32) float64 {
 // TransformFromXYZForPrimaries generates the column matrix for converting
 // colour values from CIE XYZ to a space defined by three RGB primary
 // chromaticities and a reference white.
-func TransformFromXYZForPrimaries(rx, ry, gx, gy, bx, by float64, whitePoint Color) matrix.Matrix3 {
-	return TransformToXYZForPrimaries(rx, ry, gx, gy, bx, by, whitePoint).Inverse()
+func TransformFromXYZForXYYPrimaries(r, g, b ciexyy.Color, whitePoint ciexyy.Color) matrix.Matrix3 {
+	return TransformToXYZForXYYPrimaries(r, g, b, whitePoint).Inverse()
 }
 
-// TransformToXYZForPrimaries generates the column matrix for converting colour
+// TransformToXYZForXYYPrimaries generates the column matrix for converting colour
 // values from a space defined by three primary RGB chromaticities and a
 // reference white to CIE XYZ.
-func TransformToXYZForPrimaries(rx, ry, gx, gy, bx, by float64, whitePoint Color) matrix.Matrix3 {
+func TransformToXYZForXYYPrimaries(r, g, b ciexyy.Color, whitePoint ciexyy.Color) matrix.Matrix3 {
 	m := matrix.Matrix3{
-		transformForComponent(rx, ry),
-		transformForComponent(gx, gy),
-		transformForComponent(bx, by),
+		ColorFromXYY(r).ToV(),
+		ColorFromXYY(g).ToV(),
+		ColorFromXYY(b).ToV(),
 	}
 
-	s := m.Inverse().MulV(matrix.Vector3{
-		float64(whitePoint.X),
-		float64(whitePoint.Y),
-		float64(whitePoint.Z),
-	})
+	s := m.Inverse().MulV(ColorFromXYY(whitePoint).ToV())
 
 	return matrix.Matrix3{
 		m[0].MulS(s[0]),
 		m[1].MulS(s[1]),
 		m[2].MulS(s[2]),
-	}
-}
-
-func transformForComponent(vx, vy float64) matrix.Vector3 {
-	return matrix.Vector3{
-		vx / vy,
-		1.0,
-		(1 - vx - vy) / vy,
 	}
 }
