@@ -46,7 +46,7 @@ Another way of stating this problem is that sRGB being the Web standard makes it
 
 #### 2. sRGB uses a non-linear tonal response curve
 
-For efficiency and fidelity, nearly all colour encoding schemes are set up to be _perceptually_ linear. But because our eyes don’t perceive brightness linearly, this means the [colour values are not linear in intensity](https://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/), so sRGB(127, 127, 127) is not actually half as bright as sRGB(255, 255, 255).
+For efficiency and fidelity, nearly all colour encoding schemes (sRGB or otherwise) are set up to be _perceptually_ linear. But because our eyes don’t perceive brightness linearly, this means the [colour values are not linear in intensity](https://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/), so sRGB(127, 127, 127) is not actually half as bright as sRGB(255, 255, 255).
 
 Since many image manipulation operations (such as scaling, sharpening, or blending) rely on colour values having linear intensity, applying them to non-linear colour data produces visual artefacts and generally incorrect results.
 
