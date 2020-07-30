@@ -38,7 +38,7 @@ The following example shows an image targeting Adobe RGB (a wide gamut colour sp
 
 _This is not an example of sRGB being deficient in some way._ This image is well within the sRGB gamut, and a correct interpretation will look just like the version on the left (indeed, this example figure itself is actually sRGB).
 
-Another way of stating this problem is that sRGB being the Web standard only makes it the default, which doesn’t preclude other, significantly different colour spaces from already being in common use.
+Another way of stating this problem is that sRGB being the Web standard only makes it the default, which doesn’t preclude other, significantly different colour spaces from already being in common use. Having different colour spaces is analogous to having different character sets when working with strings.
 
 #### 2. sRGB uses a non-linear tonal response curve
 
@@ -46,7 +46,7 @@ For efficiency and to favour fidelity, nearly all colour encoding schemes are se
 
 Because many image manipulation operations (such as scaling or blending) rely on colour values having linear intensity, applying them to non-linear colour data results in visual artefacts and generally incorrect results.
 
-Another way of stating this problem is that colour values in images are _encoded_ (sometimes referred to as “gamma encoding” or “gamma correction”), and need to be _decoded_ rather than used directly.
+Another way of stating this problem is that colour values in images are _encoded_ (sometimes referred to as “gamma encoding” or “gamma correction”), and need to be _decoded_ rather than used directly. If colour spaces are akin to character sets when dealing with strings, then colour encodings are akin to character encodings.
 
 
 ## Example usage
