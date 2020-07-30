@@ -32,11 +32,11 @@ This is like asking why we need to worry about UTF-8 when ASCII is the standard,
 
 sRGB is a narrow gamut colour space. Smartphones, computing devices, and other displays (including everything marketed under “HDR” consumer labels) increasingly use wider gamuts, and are capable of reproducing much more saturation than sRGB can represent. Images produced on these displays, taking advantage of the wider gamuts, will look incorrect when naively interpreted as sRGB.
 
-The following example shows an image targeting Adobe RGB (a wide gamut colour space commonly used by artists and photographers; left) and what happens when it is incorrectly assumed to be sRGB (right). A common complaint with images uploaded to social media or other sites, note that the bright, saturated topping has become much more dull and unappetising, and the whole image has gained a greenish cast:
+The following example shows an image targeting Adobe RGB (a wide gamut colour space commonly used by artists and photographers; left) and what happens when it is incorrectly assumed to be sRGB (right). A common complaint with images uploaded to social media or other sites, note the loss of saturation. The bright, saturated topping has become much more dull and unappetising, and the whole image has gained a greenish cast:
 
 ![Example of incorrectly interpreting an Adobe RGB image as sRGB](doc-images/example-bad-conversion.png)
 
-_This is not an example of sRGB being defficient in some way._ This image is well within the sRGB gamut, and a correct interpretation will look just like the version on the left (indeed, this example figure itself is actually sRGB).
+_This is not an example of sRGB being deficient in some way._ This image is well within the sRGB gamut, and a correct interpretation will look just like the version on the left (indeed, this example figure itself is actually sRGB).
 
 Another way of stating this problem is that sRGB being the Web standard only makes it the default, which doesn’t preclude other, significantly different colour spaces from already being in common use.
 
