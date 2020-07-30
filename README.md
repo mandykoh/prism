@@ -26,7 +26,9 @@ Image data provided by the standard [`image`](https://golang.org/pkg/image/) pac
 
 ### Colour conversion
 
-The following example converts Adobe RGB (1998) pixel data to sRGB. It retrieves a pixel from an [NRGBA image](https://golang.org/pkg/image/#NRGBA), decodes it as an Adobe RGB (1998) linearised colour value, then converts that to an sRGB colour value via the CIE XYZ intermediate colour space, before finally encoding the result as an 8-bit sRGB value suitable for writing back to an `image.NRGBA`:
+Conversions between RGB colour spaces are performed via the CIE XYZ intermediate colour space (using the `ToXYZ` and `ColorFromXYZ` functions).
+
+The following example converts Adobe RGB (1998) pixel data to sRGB. It retrieves a pixel from an [NRGBA image](https://golang.org/pkg/image/#NRGBA), decodes it as an Adobe RGB (1998) linearised colour value, then converts that to an sRGB colour value via CIE XYZ, before finally encoding the result as an 8-bit sRGB value suitable for writing back to an `image.NRGBA`:
 
 ```go
 c := inputImg.NRGBAAt(x, y)                 // Take input colour value
