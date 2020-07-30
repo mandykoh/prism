@@ -42,10 +42,10 @@ outputImg.SetNRGBA(x, y, sc.ToNRGBA(alpha)) // Write sRGB-encoded value to outpu
 
 Adobe RGB (1998) and sRGB are both specified referring to a standard D65 white point. However, Pro Photo RGB references a D50 white point. When converting between white points, a chromatic adaptation is required to compensate for a shift in warmness/coolness that would otherwise occur.
 
-The following example prepares such a chromatic adaptation (using the `AdaptBetweenWhitePoints` function), then uses it in converting from Pro Photo RGB to sRGB:
+The following example prepares such a chromatic adaptation (using the `AdaptBetweenXYYWhitePoints` function), then uses it in converting from Pro Photo RGB to sRGB:
 
 ```go
-adaptation := ciexyz.AdaptBetweenWhitePoints(
+adaptation := ciexyz.AdaptBetweenXYYWhitePoints(
     prophotorgb.StandardWhitePoint,         // From D50
     srgb.StandardWhitePoint,                // To D65
 )
