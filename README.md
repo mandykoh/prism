@@ -21,7 +21,7 @@ Much of this implementation is based on information provided by [Bruce Lindbloom
 
 Using the analogy of working with strings, a _colour space_ is to _colour encoding_ what a character set is to character encoding.
 
-Image data provided by the standard [`image`](https://golang.org/pkg/image/) package doesn’t come with colour space information, yet colour values from the images are invariably encoded in some scheme specific to the colour space that the image is targeting.
+Image data provided by the standard [`image`](https://golang.org/pkg/image/) package doesn’t come with colour space information, yet colour values from the images are invariably encoded in some scheme specific to the colour space that the image is targeting. And as with character encodings, programmers then routinely take these RGB (for example) values and make incorrect assumptions about how they’ve been encoded, leading to software that sort of mostly works in common cases but fails in important ways (like supporting non-English languages or Emoji).
 
 `prism` can be used to decode these colour values into a normalised, linear representation more suitable for image processing, and subsequently converting those back to encoded colour values in (potentially) other colour spaces.
 
