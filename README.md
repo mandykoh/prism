@@ -6,7 +6,7 @@
 
 `prism` aims to become a set of utilities for practical colour management and conversion in pure Go.
 
-`prism` currently implements encoding/decoding linear colour from sRGB, Adobe RGB, and Pro Photo RGB encodings with optional fast LUT-based conversion, and conversion to and from CIE xyY, CIE XYZ, and CIE Lab. Chromatic adaptation in XYZ space between different white points is also supported.
+`prism` currently implements encoding/decoding linear colour from sRGB, Adobe RGB, Pro Photo RGB, and Display P3 encodings with optional fast LUT-based conversion, and conversion to and from CIE xyY, CIE XYZ, and CIE Lab. Chromatic adaptation in XYZ space between different white points is also supported.
 
 `prism` does not yet support detection/extraction/embedding of tagged colour profiles in images, conversions between arbitrary ICC profiles, nor CMYK.
 

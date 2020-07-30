@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mandykoh/prism/adobergb"
 	"github.com/mandykoh/prism/ciexyz"
+	"github.com/mandykoh/prism/displayp3"
 	"github.com/mandykoh/prism/prophotorgb"
 	"github.com/mandykoh/prism/srgb"
 )
@@ -40,6 +41,40 @@ func ExampleTransformToXYZForXYYPrimaries_generateAdobeRGBMatrix() {
 	// X = c.R*0.5766680793281725 + c.G*0.1855619421659935 + c.B*0.18819852398084014
 	// Y = c.R*0.29734448781899253 + c.G*0.6273761097678748 + c.B*0.07527940241313279
 	// Z = c.R*0.027031317880049893 + c.G*0.07069030664147563 + c.B*0.9911788223702592
+}
+
+func ExampleTransformFromXYZForXYYPrimaries_generateDisplayP3Matrix() {
+	transform := ciexyz.TransformFromXYZForXYYPrimaries(
+		displayp3.PrimaryRed,
+		displayp3.PrimaryGreen,
+		displayp3.PrimaryBlue,
+		displayp3.StandardWhitePoint)
+
+	fmt.Printf("R = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("G = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("B = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][2], transform[1][2], transform[2][2])
+
+	// Output:
+	// R = c.X*2.493509087331807 + c.Y*-0.931388074532663 + c.Z*-0.40271279318557973
+	// G = c.X*-0.8294731994547587 + c.Y*1.7626305488413623 + c.Z*0.0236242511428412
+	// B = c.X*0.03585127357050431 + c.Y*-0.07618395633732165 + c.Z*0.9570295296681479
+}
+
+func ExampleTransformToXYZForXYYPrimaries_generateDisplayP3Matrix() {
+	transform := ciexyz.TransformToXYZForXYYPrimaries(
+		displayp3.PrimaryRed,
+		displayp3.PrimaryGreen,
+		displayp3.PrimaryBlue,
+		displayp3.StandardWhitePoint)
+
+	fmt.Printf("X = c.R*%v + c.G*%v + c.B*%v\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("Y = c.R*%v + c.G*%v + c.B*%v\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("Z = c.R*%v + c.G*%v + c.B*%v\n", transform[0][2], transform[1][2], transform[2][2])
+
+	// Output:
+	// X = c.R*0.48656856264244125 + c.G*0.2656727168458704 + c.B*0.19818726598669462
+	// Y = c.R*0.22897344124350177 + c.G*0.6917516599220641 + c.B*0.07927489883443435
+	// Z = c.R*0 + c.G*0.04511425370425419 + c.B*1.0437861931875305
 }
 
 func ExampleTransformFromXYZForXYYPrimaries_generateSRGBMatrix() {

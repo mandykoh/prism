@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mandykoh/prism/adobergb"
 	"github.com/mandykoh/prism/ciexyz"
+	"github.com/mandykoh/prism/displayp3"
 	"github.com/mandykoh/prism/prophotorgb"
 	"github.com/mandykoh/prism/srgb"
 	"image"
@@ -96,6 +97,30 @@ func Example_convertAdobeRGBToSRGB() {
 	writeImage("example-output/adobergb-to-srgb.png", convertedImg)
 
 	if difference := compare(convertedImg, referenceImg, 5); difference > 0.01 {
+		fmt.Printf("Images differ by %.2f%% of pixels exceeding difference threshold", difference*100)
+	} else {
+		fmt.Printf("Images match")
+	}
+
+	// Output: Images match
+}
+
+func Example_convertDisplayP3ToSRGB() {
+	referenceImg := loadImage("test-images/pizza-rgb8-srgb.jpg")
+	inputImg := loadImage("test-images/pizza-rgb8-displayp3.jpg")
+
+	convertedImg := image.NewNRGBA(inputImg.Rect)
+	for i := inputImg.Rect.Min.Y; i < inputImg.Rect.Max.Y; i++ {
+		for j := inputImg.Rect.Min.X; j < inputImg.Rect.Max.X; j++ {
+			inCol, alpha := displayp3.ColorFromNRGBA(inputImg.NRGBAAt(j, i))
+			outCol := srgb.ColorFromXYZ(inCol.ToXYZ())
+			convertedImg.SetNRGBA(j, i, outCol.ToNRGBA(alpha))
+		}
+	}
+
+	writeImage("example-output/displayp3-to-srgb.png", convertedImg)
+
+	if difference := compare(convertedImg, referenceImg, 5); difference > 0.005 {
 		fmt.Printf("Images differ by %.2f%% of pixels exceeding difference threshold", difference*100)
 	} else {
 		fmt.Printf("Images match")
