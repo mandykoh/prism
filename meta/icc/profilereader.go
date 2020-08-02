@@ -26,6 +26,9 @@ func (pr *ProfileReader) ReadProfile() (p *Profile, err error) {
 	}
 
 	err = pr.readTagTable(&profile.TagTable)
+	if err != nil {
+		return nil, err
+	}
 
 	return profile, nil
 }
@@ -65,13 +68,14 @@ func (pr *ProfileReader) readDateTimeNumber() (result time.Time, err error) {
 }
 
 func (pr *ProfileReader) readHeader(header *Header) error {
-	value, err := binary.ReadU32Big(pr.reader)
+	var err error
+
+	header.ProfileSize, err = binary.ReadU32Big(pr.reader)
 	if err != nil {
 		return err
 	}
-	header.ProfileSize = value
 
-	value, err = binary.ReadU32Big(pr.reader)
+	value, err := binary.ReadU32Big(pr.reader)
 	if err != nil {
 		return err
 	}
@@ -85,6 +89,8 @@ func (pr *ProfileReader) readHeader(header *Header) error {
 	if err != nil {
 		return err
 	}
+
+	// Reserved bytes in version field
 	_, err = pr.reader.ReadByte()
 	if err != nil {
 		return err
@@ -122,7 +128,7 @@ func (pr *ProfileReader) readHeader(header *Header) error {
 		return err
 	}
 	if s := Signature(value); s != ProfileFileSignature {
-		return fmt.Errorf("invalid profile file signature %s", ProfileFileSignature)
+		return fmt.Errorf("invalid profile file signature %s", s)
 	}
 
 	value, err = binary.ReadU32Big(pr.reader)

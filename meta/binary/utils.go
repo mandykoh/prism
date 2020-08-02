@@ -55,3 +55,14 @@ func ReadU64Big(r io.ByteReader) (uint64, error) {
 
 	return uint64(w1)<<32 | uint64(w2), nil
 }
+
+func WriteU32Big(w io.Writer, n uint32) error {
+	_, err := w.Write([]byte{
+		byte(n >> 24 & 0xFF),
+		byte(n >> 16 & 0xFF),
+		byte(n >> 8 & 0xFF),
+		byte(n & 0xFF),
+	})
+
+	return err
+}
