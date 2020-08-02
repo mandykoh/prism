@@ -4,6 +4,7 @@ import (
 	"github.com/mandykoh/prism/meta/icc"
 )
 
+// Data represents the metadata for an image.
 type Data struct {
 	PixelWidth       int
 	PixelHeight      int
