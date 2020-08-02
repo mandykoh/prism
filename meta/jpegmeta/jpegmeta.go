@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/mandykoh/prism/meta"
+	"github.com/mandykoh/prism/meta/binary"
 	"github.com/mandykoh/prism/meta/icc"
 	"io"
 )
@@ -24,13 +25,14 @@ var iccProfileIdentifier = []byte("ICC_PROFILE\x00")
 func Load(r io.Reader) (md *meta.Data, imgStream io.Reader, err error) {
 	rewindBuffer := &bytes.Buffer{}
 	tee := io.TeeReader(r, rewindBuffer)
-	md, err = extractMetadata(tee)
+	md, err = extractMetadata(bufio.NewReader(tee))
 	return md, io.MultiReader(rewindBuffer, r), err
 }
 
-func extractMetadata(r io.Reader) (*meta.Data, error) {
+func extractMetadata(r binary.Reader) (*meta.Data, error) {
+	metadataExtracted := false
 	md := &meta.Data{}
-	segReader := NewSegmentReader(bufio.NewReader(r))
+	segReader := NewSegmentReader(r)
 
 	var iccProfileChunks [][]byte
 
@@ -48,11 +50,13 @@ parseSegments:
 
 		case markerTypeStartOfFrameBaseline,
 			markerTypeStartOfFrameProgressive:
+			metadataExtracted = true
 			md.BitsPerComponent = int(segment.Data[0])
 			md.PixelHeight = int(segment.Data[1])<<8 | int(segment.Data[2])
 			md.PixelWidth = int(segment.Data[3])<<8 | int(segment.Data[4])
 
-		case markerTypeStartOfScan:
+		case markerTypeStartOfScan,
+			markerTypeEndOfImage:
 			break parseSegments
 
 		case markerTypeApp2:
@@ -79,6 +83,10 @@ parseSegments:
 			}
 			iccProfileChunks[chunkNum-1] = segment.Data[len(iccProfileIdentifier)+2:]
 		}
+	}
+
+	if !metadataExtracted {
+		return nil, fmt.Errorf("no metadata found")
 	}
 
 	// No ICC profile
