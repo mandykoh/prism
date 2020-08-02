@@ -68,7 +68,7 @@ Another way of stating this problem is that colour values in images are _encoded
 
 ### Metadata extraction
 
-Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is only supported for JPEG data. The following example demonstrates this using `jpegmeta.Load`:
+Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is only supported for JPEG data. The following example demonstrates this using [`jpegmeta.Load`](https://pkg.go.dev/github.com/mandykoh/prism/meta/jpegmeta?tab=doc#Load):
 
 ```go
 // Get a meta.Data instance containing image details and a stream to the full image
@@ -121,7 +121,7 @@ outputImg.SetNRGBA(x, y, sc.ToNRGBA(alpha)) // Write sRGB-encoded value to outpu
 
 Adobe RGB (1998) and sRGB are both specified referring to a standard D65 white point. However, Pro Photo RGB references a D50 white point. When converting between white points, a chromatic adaptation is required to compensate for a shift in warmness/coolness that would otherwise occur.
 
-The following example prepares such a chromatic adaptation (using the [`AdaptBetweenXYYWhitePoints`](https://godoc.org/github.com/mandykoh/prism/ciexyz#AdaptBetweenXYYWhitePoints) function), then uses it in converting from Pro Photo RGB to sRGB:
+The following example prepares such a chromatic adaptation (using the [`AdaptBetweenXYYWhitePoints`](https://pkg.go.dev/github.com/mandykoh/prism/ciexyz?tab=doc#AdaptBetweenXYYWhitePoints) function), then uses it in converting from Pro Photo RGB to sRGB:
 
 ```go
 adaptation := ciexyz.AdaptBetweenXYYWhitePoints(
