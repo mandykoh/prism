@@ -6,9 +6,19 @@
 
 `prism` aims to become a set of utilities for practical colour management and conversion in pure Go.
 
-`prism` currently implements encoding/decoding linear colour from sRGB, Adobe RGB, Pro Photo RGB, and Display P3 encodings with optional fast LUT-based conversion, and conversion to and from CIE xyY, CIE XYZ, and CIE Lab. Chromatic adaptation in XYZ space between different white points is also supported.
+`prism` currently implements:
 
-`prism` does not yet support detection/extraction/embedding of tagged colour profiles in images, conversions between arbitrary ICC profiles, nor CMYK.
+* Encoding/decoding linear colour from sRGB, Adobe RGB, Pro Photo RGB, and Display P3 encodings
+* Optional fast LUT-based conversion
+* Conversion to and from CIE xyY, CIE XYZ, and CIE Lab
+* Chromatic adaptation in XYZ space between different white points
+* Extracting metadata (including ICC profile) from JPEG files
+
+Still missing:
+
+* Embedding of tagged colour profiles in image
+* Exposing colour data from ICC profiles (to enable conversions between arbitrary profiles)
+* CMYK support
 
 See the [API documentation](https://pkg.go.dev/github.com/mandykoh/prism) for more details.
 
@@ -54,6 +64,44 @@ Another way of stating this problem is that colour values in images are _encoded
 
 
 ## Example usage
+
+
+### Metadata extraction
+
+Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is only supported for JPEG data. The following example demonstrates this using `jpegmeta.Load`:
+
+```go
+// Get a meta.Data instance containing image details and a stream to the full image
+md, imgStream, err := jpegmeta.Load(inFile)
+if err != nil {
+    panic(err)
+}
+
+// Load the full image after extracting metadata
+img, err = jpeg.Decode(imgStream)
+if err != nil {
+    panic(err)
+}
+```
+
+Included in the metadata are basic details about the image such as the pixel dimensions and colour depth:
+
+```go
+fmt.Printf("Image height in pixels: %d\n", md.PixelHeight)
+fmt.Printf("Image width in pixels: %d\n", md.PixelWidth)
+fmt.Printf("Bits per component: %d\n", md.BitsPerComponent)
+```
+
+The stream returned by `jpegmeta.Load` reproduces the full image stream, so that it can be later passed to (for example) `jpeg.Decode` to load the rest of the image. This allows information like the size of the image to be known before having to load an extremely large image.
+
+If the image contained an ICC profile, it can be retrieved from the metadata:
+
+```go
+iccProfile, err := md.ICCProfile()
+```
+
+If no profile exists, `nil` is returned without an error.
+
 
 ### Colour conversion
 
