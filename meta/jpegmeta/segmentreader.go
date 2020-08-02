@@ -30,8 +30,8 @@ func (sr *segmentReader) ReadSegment() (segment, error) {
 						return segment{}, err
 					}
 
-					sr.inEntropyCodedData = seg.Marker.Type == MarkerTypeStartOfScan ||
-						(seg.Marker.Type >= MarkerTypeRestart0 && seg.Marker.Type <= MarkerTypeRestart7)
+					sr.inEntropyCodedData = seg.Marker.Type == markerTypeStartOfScan ||
+						(seg.Marker.Type >= markerTypeRestart0 && seg.Marker.Type <= markerTypeRestart7)
 
 					return seg, err
 				}
@@ -44,7 +44,7 @@ func (sr *segmentReader) ReadSegment() (segment, error) {
 		return seg, err
 	}
 
-	sr.inEntropyCodedData = seg.Marker.Type == MarkerTypeStartOfScan
+	sr.inEntropyCodedData = seg.Marker.Type == markerTypeStartOfScan
 
 	return seg, nil
 }

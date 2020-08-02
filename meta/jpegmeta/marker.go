@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-var invalidMarker = marker{Type: MarkerTypeInvalid}
+var invalidMarker = marker{Type: markerTypeInvalid}
 
 type marker struct {
 	Type       markerType
@@ -18,42 +18,42 @@ func makeMarker(mType byte, r io.ByteReader) (marker, error) {
 	switch mType {
 
 	case
-		byte(MarkerTypeRestart0),
-		byte(MarkerTypeRestart1),
-		byte(MarkerTypeRestart2),
-		byte(MarkerTypeRestart3),
-		byte(MarkerTypeRestart4),
-		byte(MarkerTypeRestart5),
-		byte(MarkerTypeRestart6),
-		byte(MarkerTypeRestart7),
-		byte(MarkerTypeStartOfImage),
-		byte(MarkerTypeEndOfImage):
+		byte(markerTypeRestart0),
+		byte(markerTypeRestart1),
+		byte(markerTypeRestart2),
+		byte(markerTypeRestart3),
+		byte(markerTypeRestart4),
+		byte(markerTypeRestart5),
+		byte(markerTypeRestart6),
+		byte(markerTypeRestart7),
+		byte(markerTypeStartOfImage),
+		byte(markerTypeEndOfImage):
 
 		length = 2
 
-	case byte(MarkerTypeStartOfFrameBaseline),
-		byte(MarkerTypeStartOfFrameProgressive),
-		byte(MarkerTypeDefineHuffmanTable),
-		byte(MarkerTypeStartOfScan),
-		byte(MarkerTypeDefineQuantisationTable),
-		byte(MarkerTypeDefineRestartInterval),
-		byte(MarkerTypeApp0),
-		byte(MarkerTypeApp1),
-		byte(MarkerTypeApp2),
-		byte(MarkerTypeApp3),
-		byte(MarkerTypeApp4),
-		byte(MarkerTypeApp5),
-		byte(MarkerTypeApp6),
-		byte(MarkerTypeApp7),
-		byte(MarkerTypeApp8),
-		byte(MarkerTypeApp9),
-		byte(MarkerTypeApp10),
-		byte(MarkerTypeApp11),
-		byte(MarkerTypeApp12),
-		byte(MarkerTypeApp13),
-		byte(MarkerTypeApp14),
-		byte(MarkerTypeApp15),
-		byte(MarkerTypeComment):
+	case byte(markerTypeStartOfFrameBaseline),
+		byte(markerTypeStartOfFrameProgressive),
+		byte(markerTypeDefineHuffmanTable),
+		byte(markerTypeStartOfScan),
+		byte(markerTypeDefineQuantisationTable),
+		byte(markerTypeDefineRestartInterval),
+		byte(markerTypeApp0),
+		byte(markerTypeApp1),
+		byte(markerTypeApp2),
+		byte(markerTypeApp3),
+		byte(markerTypeApp4),
+		byte(markerTypeApp5),
+		byte(markerTypeApp6),
+		byte(markerTypeApp7),
+		byte(markerTypeApp8),
+		byte(markerTypeApp9),
+		byte(markerTypeApp10),
+		byte(markerTypeApp11),
+		byte(markerTypeApp12),
+		byte(markerTypeApp13),
+		byte(markerTypeApp14),
+		byte(markerTypeApp15),
+		byte(markerTypeComment):
 
 		var err error
 		length, err = binary.ReadU16Big(r)

@@ -46,16 +46,16 @@ parseSegments:
 
 		switch segment.Marker.Type {
 
-		case MarkerTypeStartOfFrameBaseline,
-			MarkerTypeStartOfFrameProgressive:
+		case markerTypeStartOfFrameBaseline,
+			markerTypeStartOfFrameProgressive:
 			md.BitsPerComponent = int(segment.Data[0])
 			md.PixelHeight = int(segment.Data[1])<<8 | int(segment.Data[2])
 			md.PixelWidth = int(segment.Data[3])<<8 | int(segment.Data[4])
 
-		case MarkerTypeStartOfScan:
+		case markerTypeStartOfScan:
 			break parseSegments
 
-		case MarkerTypeApp2:
+		case markerTypeApp2:
 			if len(segment.Data) < len(iccProfileIdentifier)+2 {
 				continue
 			}

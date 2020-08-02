@@ -5,109 +5,109 @@ import "fmt"
 type markerType int
 
 const (
-	MarkerTypeInvalid                 markerType = 0x00
-	MarkerTypeStartOfFrameBaseline    markerType = 0xc0
-	MarkerTypeStartOfFrameProgressive markerType = 0xc2
-	MarkerTypeDefineHuffmanTable      markerType = 0xc4
-	MarkerTypeRestart0                markerType = 0xd0
-	MarkerTypeRestart1                markerType = 0xd1
-	MarkerTypeRestart2                markerType = 0xd2
-	MarkerTypeRestart3                markerType = 0xd3
-	MarkerTypeRestart4                markerType = 0xd4
-	MarkerTypeRestart5                markerType = 0xd5
-	MarkerTypeRestart6                markerType = 0xd6
-	MarkerTypeRestart7                markerType = 0xd7
-	MarkerTypeStartOfImage            markerType = 0xd8
-	MarkerTypeEndOfImage              markerType = 0xd9
-	MarkerTypeStartOfScan             markerType = 0xda
-	MarkerTypeDefineQuantisationTable markerType = 0xdb
-	MarkerTypeDefineRestartInterval   markerType = 0xdd
-	MarkerTypeApp0                    markerType = 0xe0
-	MarkerTypeApp1                    markerType = 0xe1
-	MarkerTypeApp2                    markerType = 0xe2
-	MarkerTypeApp3                    markerType = 0xe3
-	MarkerTypeApp4                    markerType = 0xe4
-	MarkerTypeApp5                    markerType = 0xe5
-	MarkerTypeApp6                    markerType = 0xe6
-	MarkerTypeApp7                    markerType = 0xe7
-	MarkerTypeApp8                    markerType = 0xe8
-	MarkerTypeApp9                    markerType = 0xe9
-	MarkerTypeApp10                   markerType = 0xea
-	MarkerTypeApp11                   markerType = 0xeb
-	MarkerTypeApp12                   markerType = 0xec
-	MarkerTypeApp13                   markerType = 0xed
-	MarkerTypeApp14                   markerType = 0xee
-	MarkerTypeApp15                   markerType = 0xef
-	MarkerTypeComment                 markerType = 0xfe
+	markerTypeInvalid                 markerType = 0x00
+	markerTypeStartOfFrameBaseline    markerType = 0xc0
+	markerTypeStartOfFrameProgressive markerType = 0xc2
+	markerTypeDefineHuffmanTable      markerType = 0xc4
+	markerTypeRestart0                markerType = 0xd0
+	markerTypeRestart1                markerType = 0xd1
+	markerTypeRestart2                markerType = 0xd2
+	markerTypeRestart3                markerType = 0xd3
+	markerTypeRestart4                markerType = 0xd4
+	markerTypeRestart5                markerType = 0xd5
+	markerTypeRestart6                markerType = 0xd6
+	markerTypeRestart7                markerType = 0xd7
+	markerTypeStartOfImage            markerType = 0xd8
+	markerTypeEndOfImage              markerType = 0xd9
+	markerTypeStartOfScan             markerType = 0xda
+	markerTypeDefineQuantisationTable markerType = 0xdb
+	markerTypeDefineRestartInterval   markerType = 0xdd
+	markerTypeApp0                    markerType = 0xe0
+	markerTypeApp1                    markerType = 0xe1
+	markerTypeApp2                    markerType = 0xe2
+	markerTypeApp3                    markerType = 0xe3
+	markerTypeApp4                    markerType = 0xe4
+	markerTypeApp5                    markerType = 0xe5
+	markerTypeApp6                    markerType = 0xe6
+	markerTypeApp7                    markerType = 0xe7
+	markerTypeApp8                    markerType = 0xe8
+	markerTypeApp9                    markerType = 0xe9
+	markerTypeApp10                   markerType = 0xea
+	markerTypeApp11                   markerType = 0xeb
+	markerTypeApp12                   markerType = 0xec
+	markerTypeApp13                   markerType = 0xed
+	markerTypeApp14                   markerType = 0xee
+	markerTypeApp15                   markerType = 0xef
+	markerTypeComment                 markerType = 0xfe
 )
 
 func (mt markerType) String() string {
 	switch mt {
-	case MarkerTypeStartOfFrameBaseline:
+	case markerTypeStartOfFrameBaseline:
 		return "SOF0"
-	case MarkerTypeStartOfFrameProgressive:
+	case markerTypeStartOfFrameProgressive:
 		return "SOF2"
-	case MarkerTypeDefineHuffmanTable:
+	case markerTypeDefineHuffmanTable:
 		return "DHT"
-	case MarkerTypeRestart0:
+	case markerTypeRestart0:
 		return "RST0"
-	case MarkerTypeRestart1:
+	case markerTypeRestart1:
 		return "RST1"
-	case MarkerTypeRestart2:
+	case markerTypeRestart2:
 		return "RST2"
-	case MarkerTypeRestart3:
+	case markerTypeRestart3:
 		return "RST3"
-	case MarkerTypeRestart4:
+	case markerTypeRestart4:
 		return "RST4"
-	case MarkerTypeRestart5:
+	case markerTypeRestart5:
 		return "RST5"
-	case MarkerTypeRestart6:
+	case markerTypeRestart6:
 		return "RST6"
-	case MarkerTypeRestart7:
+	case markerTypeRestart7:
 		return "RST7"
-	case MarkerTypeStartOfImage:
+	case markerTypeStartOfImage:
 		return "SOI"
-	case MarkerTypeEndOfImage:
+	case markerTypeEndOfImage:
 		return "EOI"
-	case MarkerTypeStartOfScan:
+	case markerTypeStartOfScan:
 		return "SOS"
-	case MarkerTypeDefineQuantisationTable:
+	case markerTypeDefineQuantisationTable:
 		return "DQT"
-	case MarkerTypeDefineRestartInterval:
+	case markerTypeDefineRestartInterval:
 		return "DRI"
-	case MarkerTypeApp0:
+	case markerTypeApp0:
 		return "APP0"
-	case MarkerTypeApp1:
+	case markerTypeApp1:
 		return "APP1"
-	case MarkerTypeApp2:
+	case markerTypeApp2:
 		return "APP2"
-	case MarkerTypeApp3:
+	case markerTypeApp3:
 		return "APP3"
-	case MarkerTypeApp4:
+	case markerTypeApp4:
 		return "APP4"
-	case MarkerTypeApp5:
+	case markerTypeApp5:
 		return "APP5"
-	case MarkerTypeApp6:
+	case markerTypeApp6:
 		return "APP6"
-	case MarkerTypeApp7:
+	case markerTypeApp7:
 		return "APP7"
-	case MarkerTypeApp8:
+	case markerTypeApp8:
 		return "APP8"
-	case MarkerTypeApp9:
+	case markerTypeApp9:
 		return "APP9"
-	case MarkerTypeApp10:
+	case markerTypeApp10:
 		return "APP10"
-	case MarkerTypeApp11:
+	case markerTypeApp11:
 		return "APP11"
-	case MarkerTypeApp12:
+	case markerTypeApp12:
 		return "APP12"
-	case MarkerTypeApp13:
+	case markerTypeApp13:
 		return "APP13"
-	case MarkerTypeApp14:
+	case markerTypeApp14:
 		return "APP14"
-	case MarkerTypeApp15:
+	case markerTypeApp15:
 		return "APP15"
-	case MarkerTypeComment:
+	case markerTypeComment:
 		return "COM"
 	default:
 		return fmt.Sprintf("Unknown (%0x)", byte(mt))
