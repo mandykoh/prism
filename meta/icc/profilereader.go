@@ -10,10 +10,17 @@ type ProfileReader struct {
 	reader binary.Reader
 }
 
-func (pr *ProfileReader) ReadProfile() (*Profile, error) {
+func (pr *ProfileReader) ReadProfile() (p *Profile, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			p = nil
+			err = fmt.Errorf("panic while parsing ICC profile: %v", r)
+		}
+	}()
+
 	profile := newProfile()
 
-	err := pr.readHeader(&profile.Header)
+	err = pr.readHeader(&profile.Header)
 	if err != nil {
 		return nil, err
 	}

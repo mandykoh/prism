@@ -29,10 +29,19 @@ func Load(r io.Reader) (md *meta.Data, imgStream io.Reader, err error) {
 	return md, io.MultiReader(rewindBuffer, r), err
 }
 
-func extractMetadata(r binary.Reader) (*meta.Data, error) {
+func extractMetadata(r binary.Reader) (md *meta.Data, err error) {
 	metadataExtracted := false
-	md := &meta.Data{}
+	md = &meta.Data{}
 	segReader := NewSegmentReader(r)
+
+	defer func() {
+		if r := recover(); r != nil {
+			if !metadataExtracted {
+				md = nil
+			}
+			err = fmt.Errorf("panic while extracting image metadata: %v", r)
+		}
+	}()
 
 	var iccProfileChunks [][]byte
 
@@ -50,10 +59,10 @@ parseSegments:
 
 		case markerTypeStartOfFrameBaseline,
 			markerTypeStartOfFrameProgressive:
-			metadataExtracted = true
 			md.BitsPerComponent = int(segment.Data[0])
 			md.PixelHeight = int(segment.Data[1])<<8 | int(segment.Data[2])
 			md.PixelWidth = int(segment.Data[3])<<8 | int(segment.Data[4])
+			metadataExtracted = true
 
 		case markerTypeStartOfScan,
 			markerTypeEndOfImage:
