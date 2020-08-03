@@ -2,6 +2,7 @@ package srgb
 
 import (
 	"github.com/mandykoh/prism/ciexyz"
+	"github.com/mandykoh/prism/colconv"
 	"image/color"
 	"math"
 )
@@ -31,6 +32,14 @@ func (c Color) ToNRGBA(alpha float32) color.NRGBA {
 	}
 }
 
+// ToRGBA returns an encoded 8-bit RGBA representation of this colour suitable
+// for use with instances of image.RGBA.
+//
+// alpha is the normalised alpha value and will be clipped to 0.0–1.0.
+func (c Color) ToRGBA(alpha float32) color.RGBA {
+	return colconv.NRGBAtoRGBA(c.ToNRGBA(alpha))
+}
+
 // ToXYZ returns a CIE XYZ representation of this colour.
 func (c Color) ToXYZ() ciexyz.Color {
 	return ciexyz.Color{
@@ -50,6 +59,13 @@ func ColorFromNRGBA(c color.NRGBA) (col Color, alpha float32) {
 			B: From8Bit(c.B),
 		},
 		float32(c.A) / 255
+}
+
+// ColorFromRGBA creates a Color instance by interpreting an 8-bit RGBA colour
+// as sRGB encoded. The alpha value is returned as a normalised value between
+// 0.0–1.0.
+func ColorFromRGBA(c color.RGBA) (col Color, alpha float32) {
+	return ColorFromNRGBA(colconv.RGBAtoNRGBA(c))
 }
 
 // ColorFromXYZ creates an SRGB Color instance from a CIE XYZ colour.
