@@ -2,6 +2,10 @@ package colconv
 
 import "image/color"
 
+func from8ToPremul8(v, alpha uint8) uint8 {
+	return uint8(int(v) * int(alpha) / 255)
+}
+
 func fromPremul8To8(v, alpha uint8) uint8 {
 	if alpha == 0 {
 		return 0
@@ -10,12 +14,11 @@ func fromPremul8To8(v, alpha uint8) uint8 {
 }
 
 func NRGBAtoRGBA(c color.NRGBA) color.RGBA {
-	r, g, b, a := c.RGBA()
 	return color.RGBA{
-		R: uint8(r >> 8),
-		G: uint8(g >> 8),
-		B: uint8(b >> 8),
-		A: uint8(a >> 8),
+		R: from8ToPremul8(c.R, c.A),
+		G: from8ToPremul8(c.G, c.A),
+		B: from8ToPremul8(c.B, c.A),
+		A: c.A,
 	}
 }
 
