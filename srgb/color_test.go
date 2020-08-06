@@ -33,11 +33,11 @@ func TestColor(t *testing.T) {
 
 				var expected Color
 				if expectedAlpha > 0 {
-					expected = Color{
-						R: From8Bit(uint8(i)) / expectedAlpha,
-						G: From8Bit(uint8(i)) / expectedAlpha,
-						B: From8Bit(uint8(i)) / expectedAlpha,
-					}
+					expected = ColorFromLinear(
+						From8Bit(uint8(i))/expectedAlpha,
+						From8Bit(uint8(i))/expectedAlpha,
+						From8Bit(uint8(i))/expectedAlpha,
+					)
 				}
 
 				rgba := color.RGBA{R: uint8(i), G: uint8(i), B: uint8(i), A: uint8(i)}
@@ -89,7 +89,7 @@ func TestColor(t *testing.T) {
 					}
 				}
 
-				c := Color{R: a, G: a, B: a}
+				c := ColorFromLinear(a, a, a)
 				actual := c.ToRGBA(a)
 
 				if expected != actual {

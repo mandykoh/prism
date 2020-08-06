@@ -2,20 +2,13 @@ package srgb
 
 import (
 	"github.com/mandykoh/prism/ciexyz"
+	"github.com/mandykoh/prism/linear"
 	"image/color"
-	"math"
 )
 
 // Color represents a linear normalised colour in sRGB space.
 type Color struct {
-	R float32
-	G float32
-	B float32
-}
-
-// Luminance returns the perceptual luminance of this colour.
-func (c Color) Luminance() float32 {
-	return 0.2126*c.R + 0.7152*c.G + 0.0722*c.B
+	linear.RGBColor
 }
 
 // ToNRGBA returns an encoded 8-bit NRGBA representation of this colour suitable
@@ -23,12 +16,7 @@ func (c Color) Luminance() float32 {
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c Color) ToNRGBA(alpha float32) color.NRGBA {
-	return color.NRGBA{
-		R: To8Bit(c.R),
-		G: To8Bit(c.G),
-		B: To8Bit(c.B),
-		A: uint8(math.Max(math.Min(float64(alpha), 1), 0) * 255),
-	}
+	return c.RGBColor.ToNRGBA(alpha, To8Bit)
 }
 
 // ToRGBA returns an encoded 8-bit RGBA representation of this colour suitable
@@ -36,14 +24,7 @@ func (c Color) ToNRGBA(alpha float32) color.NRGBA {
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c Color) ToRGBA(alpha float32) color.RGBA {
-	clippedAlpha := float32(math.Max(math.Min(float64(alpha), 1.0), 0.0))
-
-	return color.RGBA{
-		R: To8Bit(c.R * clippedAlpha),
-		G: To8Bit(c.G * clippedAlpha),
-		B: To8Bit(c.B * clippedAlpha),
-		A: uint8(clippedAlpha * 255),
-	}
+	return c.RGBColor.ToRGBA(alpha, To8Bit)
 }
 
 // ToXYZ returns a CIE XYZ representation of this colour.
@@ -55,41 +36,33 @@ func (c Color) ToXYZ() ciexyz.Color {
 	}
 }
 
+// ColorFromLinear creates a Color instance from a linear normalised RGB
+// triplet.
+func ColorFromLinear(r, g, b float32) Color {
+	return Color{linear.RGBColor{R: r, G: g, B: b}}
+}
+
 // ColorFromNRGBA creates a Color instance by interpreting an 8-bit NRGBA colour
 // as sRGB encoded. The alpha value is returned as a normalised value between
 // 0.0–1.0.
 func ColorFromNRGBA(c color.NRGBA) (col Color, alpha float32) {
-	return Color{
-			R: From8Bit(c.R),
-			G: From8Bit(c.G),
-			B: From8Bit(c.B),
-		},
-		float32(c.A) / 255
+	rgb, a := linear.RGBColorFromNRGBA(c, From8Bit)
+	return Color{rgb}, a
 }
 
 // ColorFromRGBA creates a Color instance by interpreting an 8-bit RGBA colour
 // as sRGB encoded. The alpha value is returned as a normalised value between
 // 0.0–1.0.
 func ColorFromRGBA(c color.RGBA) (col Color, alpha float32) {
-	if c.A == 0 {
-		return Color{}, 0
-	}
-
-	alpha = float32(c.A) / 255
-
-	return Color{
-			R: From8Bit(c.R) / alpha,
-			G: From8Bit(c.G) / alpha,
-			B: From8Bit(c.B) / alpha,
-		},
-		alpha
+	rgb, a := linear.RGBColorFromRGBA(c, From8Bit)
+	return Color{rgb}, a
 }
 
 // ColorFromXYZ creates an SRGB Color instance from a CIE XYZ colour.
 func ColorFromXYZ(c ciexyz.Color) Color {
-	return Color{
-		R: c.X*3.241003600540255 + c.Y*-1.5373991710891957 + c.Z*-0.49861598312439226,
-		G: c.X*-0.9692242864995344 + c.Y*1.8759299885141119 + c.Z*0.04155424903337176,
-		B: c.X*0.05563936186796137 + c.Y*-0.20401108051523723 + c.Z*1.0571488385644063,
-	}
+	return ColorFromLinear(
+		c.X*3.241003600540255+c.Y*-1.5373991710891957+c.Z*-0.49861598312439226,
+		c.X*-0.9692242864995344+c.Y*1.8759299885141119+c.Z*0.04155424903337176,
+		c.X*0.05563936186796137+c.Y*-0.20401108051523723+c.Z*1.0571488385644063,
+	)
 }
