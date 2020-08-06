@@ -29,11 +29,16 @@ func TestColor(t *testing.T) {
 
 		t.Run("returns correct results for scaled alpha", func(t *testing.T) {
 			for i := 0; i < 256; i++ {
-				nrgba := color.NRGBA{R: 255, G: 255, B: 255, A: uint8(i)}
-				if i == 0 {
-					nrgba = color.NRGBA{R: 0, G: 0, B: 0, A: 0}
+				expectedAlpha := float32(i) / 255
+
+				var expected Color
+				if expectedAlpha > 0 {
+					expected = Color{
+						R: From8Bit(uint8(i)) / expectedAlpha,
+						G: From8Bit(uint8(i)) / expectedAlpha,
+						B: From8Bit(uint8(i)) / expectedAlpha,
+					}
 				}
-				expected, expectedAlpha := ColorFromNRGBA(nrgba)
 
 				rgba := color.RGBA{R: uint8(i), G: uint8(i), B: uint8(i), A: uint8(i)}
 				actual, actualAlpha := ColorFromRGBA(rgba)
@@ -72,21 +77,19 @@ func TestColor(t *testing.T) {
 
 		t.Run("returns correct results for scaled alpha", func(t *testing.T) {
 			for i := 0; i < 256; i++ {
-				c, a := ColorFromNRGBA(color.NRGBA{R: 255, G: 255, B: 255, A: uint8(i)})
+				a := float32(i) / 255
 
-				nrgba := c.ToNRGBA(a)
 				var expected color.RGBA
-				if nrgba.A == 0 {
-					expected = color.RGBA{R: 0, G: 0, B: 0, A: 0}
-				} else {
+				if a > 0 {
 					expected = color.RGBA{
-						R: uint8((int(nrgba.R) * int(nrgba.A)) / 255),
-						G: uint8((int(nrgba.G) * int(nrgba.A)) / 255),
-						B: uint8((int(nrgba.B) * int(nrgba.A)) / 255),
-						A: nrgba.A,
+						R: To8Bit(a * a),
+						G: To8Bit(a * a),
+						B: To8Bit(a * a),
+						A: uint8(a * 255),
 					}
 				}
 
+				c := Color{R: a, G: a, B: a}
 				actual := c.ToRGBA(a)
 
 				if expected != actual {

@@ -2,7 +2,6 @@ package displayp3
 
 import (
 	"github.com/mandykoh/prism/ciexyz"
-	"github.com/mandykoh/prism/colconv"
 	"github.com/mandykoh/prism/srgb"
 	"image/color"
 	"math"
@@ -38,7 +37,14 @@ func (c Color) ToNRGBA(alpha float32) color.NRGBA {
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c Color) ToRGBA(alpha float32) color.RGBA {
-	return colconv.NRGBAtoRGBA(c.ToNRGBA(alpha))
+	clippedAlpha := float32(math.Max(math.Min(float64(alpha), 1.0), 0.0))
+
+	return color.RGBA{
+		R: srgb.To8Bit(c.R * clippedAlpha),
+		G: srgb.To8Bit(c.G * clippedAlpha),
+		B: srgb.To8Bit(c.B * clippedAlpha),
+		A: uint8(clippedAlpha * 255),
+	}
 }
 
 // ToXYZ returns a CIE XYZ representation of this colour.
@@ -70,12 +76,14 @@ func ColorFromRGBA(c color.RGBA) (col Color, alpha float32) {
 		return Color{}, 0
 	}
 
+	alpha = float32(c.A) / 255
+
 	return Color{
-			R: srgb.From8Bit(uint8((uint32(c.R) * 255) / uint32(c.A))),
-			G: srgb.From8Bit(uint8((uint32(c.G) * 255) / uint32(c.A))),
-			B: srgb.From8Bit(uint8((uint32(c.B) * 255) / uint32(c.A))),
+			R: srgb.From8Bit(c.R) / alpha,
+			G: srgb.From8Bit(c.G) / alpha,
+			B: srgb.From8Bit(c.B) / alpha,
 		},
-		float32(c.A) / 255
+		alpha
 }
 
 // ColorFromXYZ creates a Display P3 Color instance from a CIE XYZ colour.
