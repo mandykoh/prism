@@ -65,7 +65,16 @@ func ColorFromNRGBA(c color.NRGBA) (col Color, alpha float32) {
 // as Pro Photo RGB encoded. The alpha value is returned as a normalised value
 // between 0.0–1.0.
 func ColorFromRGBA(c color.RGBA) (col Color, alpha float32) {
-	return ColorFromNRGBA(colconv.RGBAtoNRGBA(c))
+	if c.A == 0 {
+		return Color{}, 0
+	}
+
+	return Color{
+			R: From8Bit(uint8((uint32(c.R) * 255) / uint32(c.A))),
+			G: From8Bit(uint8((uint32(c.G) * 255) / uint32(c.A))),
+			B: From8Bit(uint8((uint32(c.B) * 255) / uint32(c.A))),
+		},
+		float32(c.A) / 255
 }
 
 // ColorFromXYZ creates a Pro Photo RGB Color instance from a CIE XYZ colour.

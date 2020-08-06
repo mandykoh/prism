@@ -3,14 +3,7 @@ package colconv
 import "image/color"
 
 func from8ToPremul8(v, alpha uint8) uint8 {
-	return uint8(int(v) * int(alpha) / 255)
-}
-
-func fromPremul8To8(v, alpha uint8) uint8 {
-	if alpha == 0 {
-		return 0
-	}
-	return uint8((int(v) * 255) / int(alpha))
+	return uint8(uint32(v) * uint32(alpha) / 255)
 }
 
 func NRGBAtoRGBA(c color.NRGBA) color.RGBA {
@@ -23,10 +16,14 @@ func NRGBAtoRGBA(c color.NRGBA) color.RGBA {
 }
 
 func RGBAtoNRGBA(c color.RGBA) color.NRGBA {
+	if c.A == 0 {
+		return color.NRGBA{}
+	}
+
 	return color.NRGBA{
-		R: fromPremul8To8(c.R, c.A),
-		G: fromPremul8To8(c.G, c.A),
-		B: fromPremul8To8(c.B, c.A),
+		R: uint8((uint32(c.R) * 255) / uint32(c.A)),
+		G: uint8((uint32(c.G) * 255) / uint32(c.A)),
+		B: uint8((uint32(c.B) * 255) / uint32(c.A)),
 		A: c.A,
 	}
 }
