@@ -3,7 +3,6 @@ package prism
 import (
 	"github.com/mandykoh/prism/adobergb"
 	"github.com/mandykoh/prism/ciexyz"
-	"github.com/mandykoh/prism/colconv"
 	"github.com/mandykoh/prism/prophotorgb"
 	"github.com/mandykoh/prism/srgb"
 	"image"
@@ -59,18 +58,6 @@ func BenchmarkColorConversion(b *testing.B) {
 	b.Run("RGBA to NRGBA non-colour managed draw", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			draw.Draw(nrgbaImg, nrgbaImg.Rect, rgbaImg, rgbaImg.Rect.Min, draw.Src)
-		}
-	})
-
-	b.Run("RGBA to NRGBA non-colour managed pixel copy", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := rgbaImg.RGBAAt(j, i)
-					nrgba := colconv.RGBAtoNRGBA(c)
-					nrgbaOutput.SetNRGBA(j, i, nrgba)
-				}
-			}
 		}
 	})
 
