@@ -36,16 +36,29 @@ func BenchmarkColorConversion(b *testing.B) {
 	rgbaOutput := image.NewRGBA(yCbCrImg.Bounds())
 
 	rgbaImg := image.NewRGBA(yCbCrImg.Bounds())
-	b.Run("YCbCr to RGBA non-colour managed", func(b *testing.B) {
+	b.Run("YCbCr to RGBA non-colour managed draw", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			draw.Draw(rgbaImg, rgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
 		}
 	})
 
 	nrgbaImg := image.NewNRGBA(yCbCrImg.Bounds())
-	b.Run("YCbCr to NRGBA non-colour managed", func(b *testing.B) {
+	b.Run("YCbCr to NRGBA non-colour managed draw", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			draw.Draw(nrgbaImg, nrgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
+		}
+	})
+
+	b.Run("YCbCr to NRGBA non-colour managed pixel copy", func(b *testing.B) {
+		for iteration := 0; iteration < b.N; iteration++ {
+			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+					c := yCbCrImg.YCbCrAt(j, i)
+					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
+					nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
+					nrgbaOutput.SetNRGBA(j, i, nrgba)
+				}
+			}
 		}
 	})
 
