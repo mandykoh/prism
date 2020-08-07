@@ -47,33 +47,3 @@ func (c RGB) ToEncodedRGBA(alpha float32, trcEncode func(float32) uint8) color.R
 		A: uint8(math.Max(math.Min(float64(alpha), 1.0), 0.0) * 255),
 	}
 }
-
-// RGBFromEncodedNRGBA creates a Color instance by interpreting an 8-bit NRGBA
-// colour as tonal response encoded. The alpha value is returned as a normalised
-// value between 0.0–1.0.
-func RGBFromEncodedNRGBA(c color.NRGBA, trcDecode func(uint8) float32) (col RGB, alpha float32) {
-	return RGB{
-			R: trcDecode(c.R),
-			G: trcDecode(c.G),
-			B: trcDecode(c.B),
-		},
-		float32(c.A) / 255
-}
-
-// RGBFromEncodedRGBA creates a Color instance by interpreting an 8-bit RGBA colour
-// as sRGB encoded. The alpha value is returned as a normalised value between
-// 0.0–1.0.
-func RGBFromEncodedRGBA(c color.RGBA, trcDecode func(uint8) float32) (col RGB, alpha float32) {
-	if c.A == 0 {
-		return RGB{}, 0
-	}
-
-	alpha = float32(c.A) / 255
-
-	return RGB{
-			R: trcDecode(c.R) / alpha,
-			G: trcDecode(c.G) / alpha,
-			B: trcDecode(c.B) / alpha,
-		},
-		alpha
-}

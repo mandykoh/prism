@@ -46,16 +46,33 @@ func ColorFromLinear(r, g, b float32) Color {
 // as sRGB encoded. The alpha value is returned as a normalised value between
 // 0.0–1.0.
 func ColorFromNRGBA(c color.NRGBA) (col Color, alpha float32) {
-	rgb, a := linear.RGBFromEncodedNRGBA(c, From8Bit)
-	return Color{rgb}, a
+	return Color{
+		RGB: linear.RGB{
+			R: From8Bit(c.R),
+			G: From8Bit(c.G),
+			B: From8Bit(c.B),
+		},
+	}, float32(c.A) / 255
 }
 
 // ColorFromRGBA creates a Color instance by interpreting an 8-bit RGBA colour
 // as sRGB encoded. The alpha value is returned as a normalised value between
 // 0.0–1.0.
 func ColorFromRGBA(c color.RGBA) (col Color, alpha float32) {
-	rgb, a := linear.RGBFromEncodedRGBA(c, From8Bit)
-	return Color{rgb}, a
+	if c.A == 0 {
+		return Color{}, 0
+	}
+
+	alpha = float32(c.A) / 255
+
+	return Color{
+			RGB: linear.RGB{
+				R: From8Bit(c.R) / alpha,
+				G: From8Bit(c.G) / alpha,
+				B: From8Bit(c.B) / alpha,
+			},
+		},
+		alpha
 }
 
 // ColorFromXYZ creates an sRGB Color instance from a CIE XYZ colour.
