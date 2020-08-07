@@ -8,7 +8,7 @@ import (
 
 // Color represents a linear normalised colour in Adobe RGB (1998) space.
 type Color struct {
-	linear.RGBColor
+	linear.RGB
 }
 
 // ToNRGBA returns an encoded 8-bit NRGBA representation of this colour suitable
@@ -16,7 +16,7 @@ type Color struct {
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c Color) ToNRGBA(alpha float32) color.NRGBA {
-	return c.RGBColor.ToNRGBA(alpha, To8Bit)
+	return c.RGB.ToEncodedNRGBA(alpha, To8Bit)
 }
 
 // ToRGBA returns an encoded 8-bit RGBA representation of this colour suitable
@@ -24,7 +24,7 @@ func (c Color) ToNRGBA(alpha float32) color.NRGBA {
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c Color) ToRGBA(alpha float32) color.RGBA {
-	return c.RGBColor.ToRGBA(alpha, To8Bit)
+	return c.RGB.ToEncodedRGBA(alpha, To8Bit)
 }
 
 // ToXYZ returns a CIE XYZ representation of this colour.
@@ -39,14 +39,14 @@ func (c Color) ToXYZ() ciexyz.Color {
 // ColorFromLinear creates a Color instance from a linear normalised RGB
 // triplet.
 func ColorFromLinear(r, g, b float32) Color {
-	return Color{linear.RGBColor{R: r, G: g, B: b}}
+	return Color{linear.RGB{R: r, G: g, B: b}}
 }
 
 // ColorFromNRGBA creates a Color instance by interpreting an 8-bit NRGBA colour
 // as Adobe RGB (1998) encoded. The alpha value is returned as a normalised
 // value between 0.0–1.0.
 func ColorFromNRGBA(c color.NRGBA) (col Color, alpha float32) {
-	rgb, a := linear.RGBColorFromNRGBA(c, From8Bit)
+	rgb, a := linear.RGBFromEncodedNRGBA(c, From8Bit)
 	return Color{rgb}, a
 }
 
@@ -54,7 +54,7 @@ func ColorFromNRGBA(c color.NRGBA) (col Color, alpha float32) {
 // as Adobe RGB (1998) encoded. The alpha value is returned as a normalised
 // value between 0.0–1.0.
 func ColorFromRGBA(c color.RGBA) (col Color, alpha float32) {
-	rgb, a := linear.RGBColorFromRGBA(c, From8Bit)
+	rgb, a := linear.RGBFromEncodedRGBA(c, From8Bit)
 	return Color{rgb}, a
 }
 
