@@ -32,204 +32,245 @@ func loadImage(path string) image.Image {
 func BenchmarkColorConversion(b *testing.B) {
 	yCbCrImg := loadImage("test-images/pizza-rgb8-adobergb.jpg").(*image.YCbCr)
 
-	nrgbaOutput := image.NewNRGBA(yCbCrImg.Bounds())
-	rgbaOutput := image.NewRGBA(yCbCrImg.Bounds())
-
 	nrgbaImg := image.NewNRGBA(yCbCrImg.Bounds())
-	b.Run("YCbCr to NRGBA non-colour managed draw", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			draw.Draw(nrgbaImg, nrgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
-		}
-	})
+	draw.Draw(nrgbaImg, nrgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
 
 	rgbaImg := image.NewRGBA(yCbCrImg.Bounds())
-	b.Run("YCbCr to RGBA non-colour managed draw", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			draw.Draw(rgbaImg, rgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
-		}
-	})
+	draw.Draw(rgbaImg, rgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
 
-	b.Run("NRGBA to RGBA non-colour managed draw", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			draw.Draw(rgbaImg, rgbaImg.Rect, nrgbaImg, nrgbaImg.Rect.Min, draw.Src)
-		}
-	})
+	b.Run("between colour spaces", func(b *testing.B) {
+		nrgbaOutput := image.NewNRGBA(yCbCrImg.Bounds())
+		rgbaOutput := image.NewRGBA(yCbCrImg.Bounds())
 
-	b.Run("RGBA to NRGBA non-colour managed draw", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			draw.Draw(nrgbaImg, nrgbaImg.Rect, rgbaImg, rgbaImg.Rect.Min, draw.Src)
-		}
-	})
+		b.Run("YCbCr Adobe RGB to RGBA sRGB", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := rgbaOutput.Rect.Min.Y; i < rgbaOutput.Rect.Max.Y; i++ {
+					for j := rgbaOutput.Rect.Min.X; j < rgbaOutput.Rect.Max.X; j++ {
+						c := yCbCrImg.YCbCrAt(j, i)
+						r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
+						nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
 
-	b.Run("YCbCr to NRGBA non-colour managed pixel copy", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := yCbCrImg.YCbCrAt(j, i)
-					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
-					nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
-					nrgbaOutput.SetNRGBA(j, i, nrgba)
+						ac, a := adobergb.ColorFromNRGBA(nrgba)
+						sc := srgb.ColorFromXYZ(ac.ToXYZ())
+
+						rgbaOutput.SetRGBA(j, i, sc.ToRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("YCbCr to RGBA non-colour managed pixel copy", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := yCbCrImg.YCbCrAt(j, i)
-					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
-					rgba := color.RGBA{R: r, G: g, B: b, A: 255}
-					rgbaOutput.SetRGBA(j, i, rgba)
+		b.Run("NRGBA Adobe RGB to RGBA sRGB", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := rgbaOutput.Rect.Min.Y; i < rgbaOutput.Rect.Max.Y; i++ {
+					for j := rgbaOutput.Rect.Min.X; j < rgbaOutput.Rect.Max.X; j++ {
+						c := nrgbaImg.NRGBAAt(j, i)
+
+						ac, a := adobergb.ColorFromNRGBA(c)
+						sc := srgb.ColorFromXYZ(ac.ToXYZ())
+
+						rgbaOutput.SetRGBA(j, i, sc.ToRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("YCbCr Adobe RGB to RGBA sRGB", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := rgbaOutput.Rect.Min.Y; i < rgbaOutput.Rect.Max.Y; i++ {
-				for j := rgbaOutput.Rect.Min.X; j < rgbaOutput.Rect.Max.X; j++ {
-					c := yCbCrImg.YCbCrAt(j, i)
-					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
-					nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
+		b.Run("RGBA Adobe RGB to RGBA sRGB", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := rgbaOutput.Rect.Min.Y; i < rgbaOutput.Rect.Max.Y; i++ {
+					for j := rgbaOutput.Rect.Min.X; j < rgbaOutput.Rect.Max.X; j++ {
+						c := rgbaImg.RGBAAt(j, i)
 
-					ac, a := adobergb.ColorFromNRGBA(nrgba)
-					sc := srgb.ColorFromXYZ(ac.ToXYZ())
+						ac, a := adobergb.ColorFromRGBA(c)
+						sc := srgb.ColorFromXYZ(ac.ToXYZ())
 
-					rgbaOutput.SetRGBA(j, i, sc.ToRGBA(a))
+						rgbaOutput.SetRGBA(j, i, sc.ToRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("NRGBA Adobe RGB to RGBA sRGB", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := rgbaOutput.Rect.Min.Y; i < rgbaOutput.Rect.Max.Y; i++ {
-				for j := rgbaOutput.Rect.Min.X; j < rgbaOutput.Rect.Max.X; j++ {
-					c := nrgbaImg.NRGBAAt(j, i)
+		b.Run("YCbCr Adobe RGB to NRGBA sRGB", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+					for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+						c := yCbCrImg.YCbCrAt(j, i)
+						r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
+						nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
 
-					ac, a := adobergb.ColorFromNRGBA(c)
-					sc := srgb.ColorFromXYZ(ac.ToXYZ())
+						ac, a := adobergb.ColorFromNRGBA(nrgba)
+						sc := srgb.ColorFromXYZ(ac.ToXYZ())
 
-					rgbaOutput.SetRGBA(j, i, sc.ToRGBA(a))
+						nrgbaOutput.SetNRGBA(j, i, sc.ToNRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("RGBA Adobe RGB to RGBA sRGB", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := rgbaOutput.Rect.Min.Y; i < rgbaOutput.Rect.Max.Y; i++ {
-				for j := rgbaOutput.Rect.Min.X; j < rgbaOutput.Rect.Max.X; j++ {
-					c := rgbaImg.RGBAAt(j, i)
+		b.Run("NRGBA Adobe RGB to NRGBA sRGB", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+					for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+						c := nrgbaImg.NRGBAAt(j, i)
 
-					ac, a := adobergb.ColorFromRGBA(c)
-					sc := srgb.ColorFromXYZ(ac.ToXYZ())
+						ac, a := adobergb.ColorFromNRGBA(c)
+						sc := srgb.ColorFromXYZ(ac.ToXYZ())
 
-					rgbaOutput.SetRGBA(j, i, sc.ToRGBA(a))
+						nrgbaOutput.SetNRGBA(j, i, sc.ToNRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("YCbCr Adobe RGB to NRGBA sRGB", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := yCbCrImg.YCbCrAt(j, i)
-					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
-					nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
+		b.Run("RGBA Adobe RGB to NRGBA sRGB", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+					for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+						c := rgbaImg.RGBAAt(j, i)
 
-					ac, a := adobergb.ColorFromNRGBA(nrgba)
-					sc := srgb.ColorFromXYZ(ac.ToXYZ())
+						ac, a := adobergb.ColorFromRGBA(c)
+						sc := srgb.ColorFromXYZ(ac.ToXYZ())
 
-					nrgbaOutput.SetNRGBA(j, i, sc.ToNRGBA(a))
+						nrgbaOutput.SetNRGBA(j, i, sc.ToNRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("NRGBA Adobe RGB to NRGBA sRGB", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := nrgbaImg.NRGBAAt(j, i)
+		adaptation := ciexyz.AdaptBetweenXYYWhitePoints(
+			adobergb.StandardWhitePoint,
+			prophotorgb.StandardWhitePoint,
+		)
 
-					ac, a := adobergb.ColorFromNRGBA(c)
-					sc := srgb.ColorFromXYZ(ac.ToXYZ())
+		b.Run("YCbCr Adobe RGB to NRGBA Pro Photo", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+					for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+						c := yCbCrImg.YCbCrAt(j, i)
+						r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
+						nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
 
-					nrgbaOutput.SetNRGBA(j, i, sc.ToNRGBA(a))
+						ac, a := adobergb.ColorFromNRGBA(nrgba)
+						pc := prophotorgb.ColorFromXYZ(adaptation.Apply(ac.ToXYZ()))
+
+						nrgbaOutput.SetNRGBA(j, i, pc.ToNRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("RGBA Adobe RGB to NRGBA sRGB", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := rgbaImg.RGBAAt(j, i)
+		b.Run("NRGBA Adobe RGB to NRGBA Pro Photo", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+					for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+						c := nrgbaImg.NRGBAAt(j, i)
 
-					ac, a := adobergb.ColorFromRGBA(c)
-					sc := srgb.ColorFromXYZ(ac.ToXYZ())
+						ac, a := adobergb.ColorFromNRGBA(c)
+						pc := prophotorgb.ColorFromXYZ(adaptation.Apply(ac.ToXYZ()))
 
-					nrgbaOutput.SetNRGBA(j, i, sc.ToNRGBA(a))
+						nrgbaOutput.SetNRGBA(j, i, pc.ToNRGBA(a))
+					}
 				}
 			}
-		}
-	})
+		})
 
-	adaptation := ciexyz.AdaptBetweenXYYWhitePoints(
-		adobergb.StandardWhitePoint,
-		prophotorgb.StandardWhitePoint,
-	)
+		b.Run("RGBA Adobe RGB to NRGBA Pro Photo", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
+					for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
+						c := rgbaImg.RGBAAt(j, i)
 
-	b.Run("YCbCr Adobe RGB to NRGBA Pro Photo", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := yCbCrImg.YCbCrAt(j, i)
-					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
-					nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
+						ac, a := adobergb.ColorFromRGBA(c)
+						pc := prophotorgb.ColorFromXYZ(adaptation.Apply(ac.ToXYZ()))
 
-					ac, a := adobergb.ColorFromNRGBA(nrgba)
-					pc := prophotorgb.ColorFromXYZ(adaptation.Apply(ac.ToXYZ()))
-
-					nrgbaOutput.SetNRGBA(j, i, pc.ToNRGBA(a))
+						nrgbaOutput.SetNRGBA(j, i, pc.ToNRGBA(a))
+					}
 				}
 			}
-		}
+		})
 	})
 
-	b.Run("NRGBA Adobe RGB to NRGBA Pro Photo", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := nrgbaImg.NRGBAAt(j, i)
+	b.Run("between colour models", func(b *testing.B) {
 
-					ac, a := adobergb.ColorFromNRGBA(c)
-					pc := prophotorgb.ColorFromXYZ(adaptation.Apply(ac.ToXYZ()))
+		b.Run("YCbCr to NRGBA non-colour managed draw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				output := image.NewNRGBA(yCbCrImg.Rect)
+				draw.Draw(output, output.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
+			}
+		})
 
-					nrgbaOutput.SetNRGBA(j, i, pc.ToNRGBA(a))
+		b.Run("YCbCr to RGBA non-colour managed draw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				output := image.NewRGBA(yCbCrImg.Rect)
+				draw.Draw(output, output.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
+			}
+		})
+
+		b.Run("NRGBA to RGBA non-colour managed draw", func(b *testing.B) {
+			// NRGBA to RGBA is more correctly done via a colour space as tonal
+			// response encoding is applied on top of alpha premultiplication.
+			for i := 0; i < b.N; i++ {
+				output := image.NewRGBA(nrgbaImg.Rect)
+				draw.Draw(output, output.Rect, nrgbaImg, nrgbaImg.Rect.Min, draw.Src)
+			}
+		})
+
+		b.Run("RGBA to NRGBA non-colour managed draw", func(b *testing.B) {
+			// RGBA to NRGBA is more correctly done via a colour space as tonal
+			// response encoding is applied on top of alpha premultiplication.
+			for i := 0; i < b.N; i++ {
+				output := image.NewNRGBA(rgbaImg.Rect)
+				draw.Draw(output, output.Rect, rgbaImg, rgbaImg.Rect.Min, draw.Src)
+			}
+		})
+
+		b.Run("YCbCr to NRGBA non-colour managed pixel copy", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				output := image.NewNRGBA(yCbCrImg.Rect)
+
+				for i := output.Rect.Min.Y; i < output.Rect.Max.Y; i++ {
+					for j := output.Rect.Min.X; j < output.Rect.Max.X; j++ {
+						c := yCbCrImg.YCbCrAt(j, i)
+						r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
+						nrgba := color.NRGBA{R: r, G: g, B: b, A: 255}
+						output.SetNRGBA(j, i, nrgba)
+					}
 				}
 			}
-		}
-	})
+		})
 
-	b.Run("RGBA Adobe RGB to NRGBA Pro Photo", func(b *testing.B) {
-		for iteration := 0; iteration < b.N; iteration++ {
-			for i := nrgbaOutput.Rect.Min.Y; i < nrgbaOutput.Rect.Max.Y; i++ {
-				for j := nrgbaOutput.Rect.Min.X; j < nrgbaOutput.Rect.Max.X; j++ {
-					c := rgbaImg.RGBAAt(j, i)
+		b.Run("YCbCr to RGBA non-colour managed pixel copy", func(b *testing.B) {
+			for iteration := 0; iteration < b.N; iteration++ {
+				output := image.NewRGBA(yCbCrImg.Rect)
 
-					ac, a := adobergb.ColorFromRGBA(c)
-					pc := prophotorgb.ColorFromXYZ(adaptation.Apply(ac.ToXYZ()))
-
-					nrgbaOutput.SetNRGBA(j, i, pc.ToNRGBA(a))
+				for i := output.Rect.Min.Y; i < output.Rect.Max.Y; i++ {
+					for j := output.Rect.Min.X; j < output.Rect.Max.X; j++ {
+						c := yCbCrImg.YCbCrAt(j, i)
+						r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
+						rgba := color.RGBA{R: r, G: g, B: b, A: 255}
+						output.SetRGBA(j, i, rgba)
+					}
 				}
 			}
-		}
+		})
+
+		b.Run("NRGBA to NRGBA with CovertImageToNRGBA()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToNGRBA(nrgbaImg)
+			}
+		})
+
+		b.Run("RGBA to NRGBA with CovertImageToNRGBA()", func(b *testing.B) {
+			// RGBA to NRGBA is more correctly done via a colour space as tonal
+			// response encoding is applied on top of alpha premultiplication.
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToNGRBA(rgbaImg)
+			}
+		})
+
+		b.Run("YCbCr to NRGBA with CovertImageToNRGBA()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToNGRBA(yCbCrImg)
+			}
+		})
 	})
 }
