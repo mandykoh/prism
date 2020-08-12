@@ -44,6 +44,13 @@ func extractMetadata(r binary.Reader) (md *meta.Data, err error) {
 	}()
 
 	var iccProfileChunks [][]byte
+	var iccProfileChunksExtracted int
+
+	allMetadataExtracted := func() bool {
+		return metadataExtracted &&
+			iccProfileChunks != nil &&
+			iccProfileChunksExtracted == len(iccProfileChunks)
+	}
 
 parseSegments:
 	for {
@@ -63,6 +70,10 @@ parseSegments:
 			md.PixelHeight = int(segment.Data[1])<<8 | int(segment.Data[2])
 			md.PixelWidth = int(segment.Data[3])<<8 | int(segment.Data[4])
 			metadataExtracted = true
+
+			if allMetadataExtracted() {
+				break parseSegments
+			}
 
 		case markerTypeStartOfScan,
 			markerTypeEndOfImage:
@@ -90,7 +101,15 @@ parseSegments:
 			if chunkNum == 0 || int(chunkNum) > len(iccProfileChunks) {
 				return nil, fmt.Errorf("invalid ICC profile chunk number")
 			}
+			if iccProfileChunks[chunkNum-1] != nil {
+				return nil, fmt.Errorf("duplicated ICC profile chunk")
+			}
+			iccProfileChunksExtracted++
 			iccProfileChunks[chunkNum-1] = segment.Data[len(iccProfileIdentifier)+2:]
+
+			if allMetadataExtracted() {
+				break parseSegments
+			}
 		}
 	}
 
@@ -98,8 +117,8 @@ parseSegments:
 		return nil, fmt.Errorf("no metadata found")
 	}
 
-	// No ICC profile
-	if len(iccProfileChunks) == 0 {
+	// Incomplete or missing ICC profile
+	if len(iccProfileChunks) != iccProfileChunksExtracted {
 		return md, nil
 	}
 
