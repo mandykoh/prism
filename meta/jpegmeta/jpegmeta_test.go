@@ -2,8 +2,6 @@ package jpegmeta
 
 import (
 	"bytes"
-	"github.com/mandykoh/prism/meta/binary"
-	"math/rand"
 	"testing"
 )
 
@@ -16,33 +14,6 @@ func TestExtractMetadata(t *testing.T) {
 		dest.Write(iccProfileIdentifier)
 		dest.Write([]byte{chunkNum, chunkTotal})
 		dest.Write(chunkData)
-	}
-
-	writeICCProfileHeader := func(w *bytes.Buffer) {
-		profileSize := uint32(rand.Int31())
-		_ = binary.WriteU32Big(w, profileSize)
-
-		_, _ = w.Write([]byte{'t', 'e', 's', 't'})                 // Preferred CMM
-		_, _ = w.Write([]byte{4, 0, 0, 0})                         // Version
-		_, _ = w.Write([]byte{'t', 'e', 's', 't'})                 // Device class
-		_, _ = w.Write([]byte{'R', 'G', 'B', ' '})                 // Data colour space
-		_, _ = w.Write([]byte{'X', 'Y', 'Z', ' '})                 // Profile connection space
-		_, _ = w.Write([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}) // Creation date/time
-		_, _ = w.Write([]byte{'a', 'c', 's', 'p'})                 // Profile signature
-		_, _ = w.Write([]byte{'t', 'e', 's', 't'})                 // Primary platform
-		_, _ = w.Write([]byte{0, 0, 0, 0})                         // Profile flags
-		_, _ = w.Write([]byte{0, 0, 0, 0})                         // Device manufacturer
-		_, _ = w.Write([]byte{0, 0, 0, 0})                         // Device model
-		_, _ = w.Write([]byte{0, 0, 0, 0, 0, 0, 0, 0})             // Device attributes
-		_, _ = w.Write([]byte{0, 0, 0, 0})                         // Rendering intent
-		_, _ = w.Write([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}) // PCS illuminant
-		_, _ = w.Write([]byte{0, 0, 0, 0})                         // Profile creator
-
-		profileID := [16]byte{}
-		_, _ = w.Write(profileID[:])
-
-		reservedBytes := [28]byte{}
-		_, _ = w.Write(reservedBytes[:])
 	}
 
 	t.Run("returns error with no start-of-frame segment", func(t *testing.T) {
@@ -111,9 +82,8 @@ func TestExtractMetadata(t *testing.T) {
 		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
 		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
 
-		iccProfile := &bytes.Buffer{}
-		writeICCProfileHeader(iccProfile)
-		writeICCProfileChunk(data, 1, 2, iccProfile.Bytes())
+		iccProfileData := []byte{0, 1, 2, 3, 4, 5}
+		writeICCProfileChunk(data, 1, 2, iccProfileData)
 
 		data.Write([]byte{0xFF, byte(markerTypeStartOfScan), 0x00, 0x02})
 
@@ -121,12 +91,46 @@ func TestExtractMetadata(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("Expected success but got error: %v", err)
+		} else if md.ICCProfileData != nil {
+			t.Errorf("Expected no ICC profile but got one")
+		}
+	})
+
+	t.Run("extracts ICC profile data from all ICC profile chunks", func(t *testing.T) {
+		data := &bytes.Buffer{}
+		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
+		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
+
+		iccProfileData1 := []byte{0, 1, 2, 3, 4, 5}
+		writeICCProfileChunk(data, 2, 2, iccProfileData1)
+
+		iccProfileData2 := []byte{6, 7, 8, 9, 10, 11}
+		writeICCProfileChunk(data, 1, 2, iccProfileData2)
+
+		data.Write([]byte{0xFF, byte(markerTypeStartOfScan), 0x00, 0x02})
+
+		md, err := extractMetadata(data)
+
+		if err != nil {
+			t.Errorf("Expected success but got error: %v", err)
+		}
+
+		if md.ICCProfileData == nil {
+			t.Errorf("Expected ICC profile data to be extracted but got none")
 		} else {
-			profile, err := md.ICCProfile()
-			if err != nil {
-				t.Errorf("Expected no ICC profile but got error: %v", err)
-			} else if profile != nil {
-				t.Errorf("Expected no ICC profile but got one")
+			if expected, actual := len(iccProfileData1)+len(iccProfileData2), len(md.ICCProfileData); expected != actual {
+				t.Fatalf("Expected %d bytes of ICC profile data but got %d", expected, actual)
+			}
+
+			for i := range iccProfileData2 {
+				if expected, actual := iccProfileData2[i], md.ICCProfileData[i]; expected != actual {
+					t.Fatalf("Expected ICC profile byte %02x but got %02x", expected, actual)
+				}
+			}
+			for i := range iccProfileData1 {
+				if expected, actual := iccProfileData1[i], md.ICCProfileData[len(iccProfileData2)+i]; expected != actual {
+					t.Fatalf("Expected ICC profile byte %02x but got %02x", expected, actual)
+				}
 			}
 		}
 	})
@@ -136,9 +140,8 @@ func TestExtractMetadata(t *testing.T) {
 		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
 		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
 
-		iccProfile := &bytes.Buffer{}
-		writeICCProfileHeader(iccProfile)
-		writeICCProfileChunk(data, 1, 1, iccProfile.Bytes())
+		iccProfileData := []byte{0, 1, 2, 3, 4, 5}
+		writeICCProfileChunk(data, 1, 1, iccProfileData)
 
 		data.Write([]byte{0xFF, byte(markerTypeStartOfScan), 0x00, 0x02})
 

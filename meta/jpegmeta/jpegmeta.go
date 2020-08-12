@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/mandykoh/prism/meta"
 	"github.com/mandykoh/prism/meta/binary"
-	"github.com/mandykoh/prism/meta/icc"
 	"io"
 )
 
@@ -126,13 +125,7 @@ parseSegments:
 	for i := range iccProfileChunks {
 		iccProfileData.Write(iccProfileChunks[i])
 	}
-
-	iccProfile, err := icc.NewProfileReader(bytes.NewReader(iccProfileData.Bytes())).ReadProfile()
-	if err != nil {
-		md.SetICCProfileErr(err)
-	} else {
-		md.SetICCProfile(iccProfile)
-	}
+	md.ICCProfileData = iccProfileData.Bytes()
 
 	return md, nil
 }
