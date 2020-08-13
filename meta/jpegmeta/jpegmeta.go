@@ -65,9 +65,9 @@ parseSegments:
 
 		case markerTypeStartOfFrameBaseline,
 			markerTypeStartOfFrameProgressive:
-			md.BitsPerComponent = int(segment.Data[0])
-			md.PixelHeight = int(segment.Data[1])<<8 | int(segment.Data[2])
-			md.PixelWidth = int(segment.Data[3])<<8 | int(segment.Data[4])
+			md.BitsPerComponent = uint32(segment.Data[0])
+			md.PixelHeight = uint32(segment.Data[1])<<8 | uint32(segment.Data[2])
+			md.PixelWidth = uint32(segment.Data[3])<<8 | uint32(segment.Data[4])
 			metadataExtracted = true
 
 			if allMetadataExtracted() {

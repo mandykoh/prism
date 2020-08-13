@@ -7,9 +7,9 @@ import (
 
 // Data represents the metadata for an image.
 type Data struct {
-	PixelWidth       int
-	PixelHeight      int
-	BitsPerComponent int
+	PixelWidth       uint32
+	PixelHeight      uint32
+	BitsPerComponent uint32
 	ICCProfileData   []byte
 }
 
