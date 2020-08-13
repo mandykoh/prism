@@ -12,7 +12,7 @@
 * Optional fast LUT-based conversion
 * Conversion to and from CIE xyY, CIE XYZ, and CIE Lab
 * Chromatic adaptation in XYZ space between different white points
-* Extracting metadata (including ICC profile) from JPEG files
+* Extracting metadata (including ICC profile) from PNG and JPEG files
 
 Still missing:
 
@@ -68,7 +68,7 @@ Another way of stating this problem is that colour values in images are _encoded
 
 ### Metadata extraction
 
-Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is only supported for JPEG data. The following example demonstrates this using [`jpegmeta.Load`](https://pkg.go.dev/github.com/mandykoh/prism/meta/jpegmeta?tab=doc#Load):
+Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is supported for JPEG and PNG data. The following example demonstrates this using [`jpegmeta.Load`](https://pkg.go.dev/github.com/mandykoh/prism/meta/jpegmeta?tab=doc#Load):
 
 ```go
 // Get a meta.Data instance containing image details and a stream to the full image
