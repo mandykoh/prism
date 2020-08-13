@@ -80,7 +80,7 @@ func TestExtractMetadata(t *testing.T) {
 	t.Run("returns metadata without ICC profile if an ICC chunk is missing", func(t *testing.T) {
 		data := &bytes.Buffer{}
 		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
-		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
+		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x08, 0x00, 0x10, 0x00, 0x0F})
 
 		iccProfileData := []byte{0, 1, 2, 3, 4, 5}
 		writeICCProfileChunk(data, 1, 2, iccProfileData)
@@ -91,8 +91,23 @@ func TestExtractMetadata(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("Expected success but got error: %v", err)
-		} else if md.ICCProfileData != nil {
-			t.Errorf("Expected no ICC profile but got one")
+		}
+
+		if md == nil {
+			t.Errorf("Expected metdata but got none")
+		} else {
+			if md.ICCProfileData != nil {
+				t.Errorf("Expected no ICC profile but got one")
+			}
+			if expected, actual := uint32(15), md.PixelWidth; expected != actual {
+				t.Errorf("Expected image width of %d but got %d", expected, actual)
+			}
+			if expected, actual := uint32(16), md.PixelHeight; expected != actual {
+				t.Errorf("Expected image height of %d but got %d", expected, actual)
+			}
+			if expected, actual := uint32(8), md.BitsPerComponent; expected != actual {
+				t.Errorf("Expected image bits per component of %d but got %d", expected, actual)
+			}
 		}
 	})
 
