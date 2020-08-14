@@ -59,7 +59,7 @@ func ExampleConvert8BitToLinear_generateLUT() {
 func ExampleConvertLinearTo8Bit_generateLUT() {
 	lut := [512]uint8{}
 	for i := range lut {
-		lut[i] = prophotorgb.ConvertLinearTo8Bit(float64(i) / 511)
+		lut[i] = prophotorgb.ConvertLinearTo8Bit(float32(i) / 511)
 	}
 
 	fmt.Printf("[512]uint8{")

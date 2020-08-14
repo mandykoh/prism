@@ -2,6 +2,8 @@ package adobergb
 
 import (
 	"github.com/mandykoh/prism/ciexyy"
+	"image/color"
+	"image/draw"
 	"math"
 )
 
@@ -15,9 +17,14 @@ var StandardWhitePoint = ciexyy.D65
 //
 // This implementation uses an exact analytical method. If performance is
 // critical, see To8Bit.
-func ConvertLinearTo8Bit(v float64) uint8 {
-	scaled := math.Pow(v, 256.0/563)
-	return uint8(math.Round(math.Min(math.Max(scaled, 0.0), 1.0) * 255))
+func ConvertLinearTo8Bit(v float32) uint8 {
+	return uint8(math.Round(linearToEncoded(float64(v)) * 255))
+}
+
+// ConvertLinearTo16Bit converts a linear value to a 16-bit Adobe RGB encoded
+// value, clipping the linear value to between 0.0 and 1.0.
+func ConvertLinearTo16Bit(v float32) uint16 {
+	return uint16(math.Round(linearToEncoded(float64(v)) * 65535))
 }
 
 // Convert8BitToLinear converts an 8-bit Adobe RGB encoded value to a normalised
@@ -25,6 +32,57 @@ func ConvertLinearTo8Bit(v float64) uint8 {
 //
 // This implementation uses an exact analytical method. If performance is
 // critical, see From8Bit.
-func Convert8BitToLinear(v uint8) float64 {
-	return math.Pow(float64(v)/255, 563.0/256)
+func Convert8BitToLinear(v uint8) float32 {
+	return float32(encodedToLinear(float64(v) / 255))
+}
+
+// Convert16BitToLinear converts a 16-bit Adobe RGB encoded value to a
+// normalised linear value between 0.0 and 1.0.
+func Convert16BitToLinear(v uint16) float32 {
+	return float32(encodedToLinear(float64(v) / 65535))
+}
+
+// EncodeColor converts a linear colour value to an Adobe RGB encoded one.
+func EncodeColor(c color.Color) color.RGBA64 {
+	col, alpha := ColorFromLinearColor(c)
+	return col.ToRGBA64(alpha)
+}
+
+// EncodeImage converts an image with linear colour into an Adobe RGB encoded
+// one.
+func EncodeImage(img draw.Image) {
+	bounds := img.Bounds()
+
+	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+		for j := bounds.Min.X; j < bounds.Max.X; j++ {
+			img.Set(j, i, EncodeColor(img.At(j, i)))
+		}
+	}
+}
+
+func encodedToLinear(v float64) float64 {
+	return math.Pow(v, 563.0/256)
+}
+
+// LineariseColor converts an Adobe RGB encoded colour into a linear one.
+func LineariseColor(c color.Color) color.RGBA64 {
+	col, alpha := ColorFromEncodedColor(c)
+	return col.ToLinearRGBA64(alpha)
+}
+
+// LineariseImage converts an image with Adobe RGB encoded colour to linear
+// colour.
+func LineariseImage(img draw.Image) {
+	bounds := img.Bounds()
+
+	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+		for j := bounds.Min.X; j < bounds.Max.X; j++ {
+			img.Set(j, i, LineariseColor(img.At(j, i)))
+		}
+	}
+}
+
+func linearToEncoded(v float64) float64 {
+	scaled := math.Pow(v, 256.0/563)
+	return math.Min(math.Max(scaled, 0.0), 1.0)
 }
