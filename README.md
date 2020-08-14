@@ -58,6 +58,10 @@ Another way of stating this problem is that sRGB being the Web standard makes it
 
 For efficiency and fidelity, nearly all colour encoding schemes (sRGB or otherwise) are set up to be _perceptually_ linear. But because our eyes don’t perceive brightness linearly, this means the [colour values are not linear in intensity](https://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/), so sRGB(127, 127, 127) is not actually half as bright as sRGB(255, 255, 255).
 
+The following example shows an image being resampled to half size, without and with corrected linear colour. The corrected example shows that the checkerboard patches are consistent in brightness with the solid patches after resizing, while the resized patches in the incorrect example end up as different colours:
+
+![Example of correct and incorrect resampling](doc-images/example-resampling.png)
+
 Since many image manipulation operations (such as scaling, sharpening, or blending) rely on colour values having linear intensity, applying them to non-linear colour data produces visual artefacts and generally incorrect results.
 
 Another way of stating this problem is that colour values in images are _encoded_ (sometimes referred to as “gamma encoding” or “gamma correction”), and need to be _decoded_ rather than used directly.
