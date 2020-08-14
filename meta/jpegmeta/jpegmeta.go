@@ -51,6 +51,14 @@ func extractMetadata(r binary.Reader) (md *meta.Data, err error) {
 			iccProfileChunksExtracted == len(iccProfileChunks)
 	}
 
+	soiSegment, err := segReader.ReadSegment()
+	if err != nil {
+		return nil, err
+	}
+	if soiSegment.Marker.Type != markerTypeStartOfImage {
+		return nil, fmt.Errorf("stream does not begin with start-of-image")
+	}
+
 parseSegments:
 	for {
 		segment, err := segReader.ReadSegment()
@@ -85,23 +93,31 @@ parseSegments:
 
 			for i := range iccProfileIdentifier {
 				if segment.Data[i] != iccProfileIdentifier[i] {
-					continue
+					continue parseSegments
 				}
+			}
+
+			iccData, iccErr := md.ICCProfileData()
+			if iccData != nil || iccErr != nil {
+				continue
 			}
 
 			chunkTotal := segment.Data[len(iccProfileIdentifier)+1]
 			if iccProfileChunks == nil {
 				iccProfileChunks = make([][]byte, chunkTotal)
 			} else if int(chunkTotal) != len(iccProfileChunks) {
-				return nil, fmt.Errorf("inconsistent ICC profile chunk count")
+				md.SetICCProfileError(fmt.Errorf("inconsistent ICC profile chunk count"))
+				continue
 			}
 
 			chunkNum := segment.Data[len(iccProfileIdentifier)]
 			if chunkNum == 0 || int(chunkNum) > len(iccProfileChunks) {
-				return nil, fmt.Errorf("invalid ICC profile chunk number")
+				md.SetICCProfileError(fmt.Errorf("invalid ICC profile chunk number"))
+				continue
 			}
 			if iccProfileChunks[chunkNum-1] != nil {
-				return nil, fmt.Errorf("duplicated ICC profile chunk")
+				md.SetICCProfileError(fmt.Errorf("duplicated ICC profile chunk"))
+				continue
 			}
 			iccProfileChunksExtracted++
 			iccProfileChunks[chunkNum-1] = segment.Data[len(iccProfileIdentifier)+2:]
@@ -118,6 +134,10 @@ parseSegments:
 
 	// Incomplete or missing ICC profile
 	if len(iccProfileChunks) != iccProfileChunksExtracted {
+		_, iccErr := md.ICCProfileData()
+		if iccErr == nil {
+			md.SetICCProfileError(fmt.Errorf("incomplete ICC profile data"))
+		}
 		return md, nil
 	}
 
@@ -125,7 +145,7 @@ parseSegments:
 	for i := range iccProfileChunks {
 		iccProfileData.Write(iccProfileChunks[i])
 	}
-	md.ICCProfileData = iccProfileData.Bytes()
+	md.SetICCProfileData(iccProfileData.Bytes())
 
 	return md, nil
 }

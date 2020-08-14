@@ -9,9 +9,7 @@ import (
 
 func TestExtractMetadata(t *testing.T) {
 
-	writeICCProfileChunk := func(dst *bytes.Buffer, data []byte) {
-		profileName := []byte("SomeProfile")
-
+	compressICCProfileData := func(data []byte) []byte {
 		compressedICCProfileData := &bytes.Buffer{}
 		zWriter := zlib.NewWriter(compressedICCProfileData)
 		_, err := zWriter.Write(data)
@@ -23,12 +21,18 @@ func TestExtractMetadata(t *testing.T) {
 			panic(err)
 		}
 
-		_ = binary.WriteU32Big(dst, uint32(len(profileName)+2+compressedICCProfileData.Len()))
+		return compressedICCProfileData.Bytes()
+	}
+
+	writeICCProfileChunk := func(dst *bytes.Buffer, compressedICCData []byte) {
+		profileName := []byte("SomeProfile")
+
+		_ = binary.WriteU32Big(dst, uint32(len(profileName)+2+len(compressedICCData)))
 		dst.Write(chunkTypeiCCP[:])
 		dst.Write(profileName)
 		dst.WriteByte(0x00)
 		dst.WriteByte(0x00)
-		dst.Write(compressedICCProfileData.Bytes())
+		dst.Write(compressedICCData)
 
 		dummyCRC := uint32(0)
 		_ = binary.WriteU32Big(dst, dummyCRC)
@@ -80,9 +84,62 @@ func TestExtractMetadata(t *testing.T) {
 		if md == nil {
 			t.Errorf("Expected metdata but got none")
 		} else {
-			if md.ICCProfileData != nil {
+			iccData, iccErr := md.ICCProfileData()
+
+			if iccErr != nil {
+				t.Errorf("Expected no ICC profile error but got: %v", iccErr)
+			}
+			if iccData != nil {
 				t.Errorf("Expected no ICC profile but got one")
 			}
+
+			if expected, actual := uint32(15), md.PixelWidth; expected != actual {
+				t.Errorf("Expected image width of %d but got %d", expected, actual)
+			}
+			if expected, actual := uint32(16), md.PixelHeight; expected != actual {
+				t.Errorf("Expected image height of %d but got %d", expected, actual)
+			}
+			if expected, actual := uint32(8), md.BitsPerComponent; expected != actual {
+				t.Errorf("Expected image bits per component of %d but got %d", expected, actual)
+			}
+		}
+	})
+
+	t.Run("returns metadata without ICC profile if the ICC data can't be decompressed", func(t *testing.T) {
+		data := &bytes.Buffer{}
+		data.Write(pngSignature[:])
+
+		_ = binary.WriteU32Big(data, 13)
+		data.Write(chunkTypeIHDR[:])
+		headerData := [13]byte{0, 0, 0, 15, 0, 0, 0, 16, 8}
+		data.Write(headerData[:])
+		dummyCRC := uint32(0)
+		_ = binary.WriteU32Big(data, dummyCRC)
+
+		invalidICCProfileData := []byte("NOT COMPRESSED ICC PROFLE DATA")
+		writeICCProfileChunk(data, invalidICCProfileData)
+
+		md, err := extractMetadata(data)
+
+		if err != nil {
+			t.Fatalf("Expected success but got error: %v", err)
+		}
+
+		if md == nil {
+			t.Errorf("Expected metdata but got none")
+		} else {
+			iccData, iccErr := md.ICCProfileData()
+
+			if iccData != nil {
+				t.Errorf("Expected no ICC profile but got one")
+			}
+
+			if iccErr == nil {
+				t.Errorf("Expected ICC profile error but got none")
+			} else if expected, actual := "zlib: invalid header", iccErr.Error(); expected != actual {
+				t.Errorf("Expected ICC profile error '%s' but got '%s'", expected, actual)
+			}
+
 			if expected, actual := uint32(15), md.PixelWidth; expected != actual {
 				t.Errorf("Expected image width of %d but got %d", expected, actual)
 			}
@@ -107,7 +164,7 @@ func TestExtractMetadata(t *testing.T) {
 		_ = binary.WriteU32Big(data, dummyCRC)
 
 		iccProfileData := []byte{1, 2, 3, 4}
-		writeICCProfileChunk(data, iccProfileData)
+		writeICCProfileChunk(data, compressICCProfileData(iccProfileData))
 
 		md, err := extractMetadata(data)
 
@@ -118,15 +175,21 @@ func TestExtractMetadata(t *testing.T) {
 		if md == nil {
 			t.Errorf("Expected metdata but got none")
 		} else {
-			if md.ICCProfileData == nil {
+			iccData, iccErr := md.ICCProfileData()
+
+			if iccErr != nil {
+				t.Errorf("Expected ICC profile data but got error: %v", iccErr)
+			}
+
+			if iccData == nil {
 				t.Errorf("Expected an ICC profile but got none")
 			} else {
-				if expected, actual := len(iccProfileData), len(md.ICCProfileData); expected != actual {
+				if expected, actual := len(iccProfileData), len(iccData); expected != actual {
 					t.Errorf("Expected %d bytes of ICC profile data but got %d", expected, actual)
 				}
 				for i := range iccProfileData {
-					if expected, actual := iccProfileData[i], md.ICCProfileData[i]; expected != actual {
-						t.Fatalf("Expected ICC profile data %v but got %v", iccProfileData, md.ICCProfileData)
+					if expected, actual := iccProfileData[i], iccData[i]; expected != actual {
+						t.Fatalf("Expected ICC profile data %v but got %v", iccProfileData, iccData)
 					}
 				}
 			}
@@ -155,7 +218,7 @@ func TestExtractMetadata(t *testing.T) {
 		_ = binary.WriteU32Big(data, dummyCRC)
 
 		iccProfileData := []byte{1, 2, 3, 4}
-		writeICCProfileChunk(data, iccProfileData)
+		writeICCProfileChunk(data, compressICCProfileData(iccProfileData))
 
 		_ = binary.WriteU32Big(data, 4)
 		data.Write(chunkTypeIDAT[:])

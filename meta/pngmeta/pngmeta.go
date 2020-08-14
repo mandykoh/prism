@@ -44,10 +44,9 @@ func extractMetadata(r binary.Reader) (md *meta.Data, err error) {
 		}
 	}()
 
-	var iccProfileData []byte
-
 	allMetadataExtracted := func() bool {
-		return metadataExtracted && iccProfileData != nil
+		iccData, iccErr := md.ICCProfileData()
+		return metadataExtracted && (iccData != nil || iccErr != nil)
 	}
 
 	pngSig := [8]byte{}
@@ -150,27 +149,29 @@ parseChunks:
 				return nil, fmt.Errorf("unexpected EOF reading ICC profile chunk")
 			}
 
-			zReader, err := zlib.NewReader(bytes.NewReader(chunkData))
-			if err != nil {
-				return nil, err
-			}
-			profileData := &bytes.Buffer{}
-			_, err = io.Copy(profileData, zReader)
-			_ = zReader.Close()
-			if err != nil {
-				return nil, err
-			}
-
 			// Skip chunk CRC
 			_, err = binary.ReadU32Big(r)
 			if err != nil {
 				return nil, err
 			}
 
-			iccProfileData = profileData.Bytes()
+			// Decompress ICC profile data
+			zReader, err := zlib.NewReader(bytes.NewReader(chunkData))
+			if err != nil {
+				md.SetICCProfileError(err)
+				break
+			}
+			profileData := &bytes.Buffer{}
+			_, err = io.Copy(profileData, zReader)
+			_ = zReader.Close()
+			if err == nil {
+				md.SetICCProfileData(profileData.Bytes())
 
-			if allMetadataExtracted() {
-				break parseChunks
+				if allMetadataExtracted() {
+					break parseChunks
+				}
+			} else {
+				md.SetICCProfileError(err)
 			}
 
 		case chunkTypeIDAT, chunkTypeIEND:
@@ -196,8 +197,6 @@ parseChunks:
 	if !metadataExtracted {
 		return nil, fmt.Errorf("no metadata found")
 	}
-
-	md.ICCProfileData = iccProfileData
 
 	return md, nil
 }

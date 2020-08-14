@@ -2,6 +2,7 @@ package jpegmeta
 
 import (
 	"bytes"
+	"github.com/mandykoh/prism/meta"
 	"testing"
 )
 
@@ -15,6 +16,53 @@ func TestExtractMetadata(t *testing.T) {
 		dest.Write([]byte{chunkNum, chunkTotal})
 		dest.Write(chunkData)
 	}
+
+	assertMetadataICCProfileError := func(md *meta.Data, err error, expectedErr string, t *testing.T) {
+		t.Helper()
+
+		if err != nil {
+			t.Errorf("Expected success but got error: %v", err)
+		}
+
+		if md == nil {
+			t.Errorf("Expected metdata but got none")
+		} else {
+			iccData, iccErr := md.ICCProfileData()
+
+			if iccData != nil {
+				t.Errorf("Expected no ICC profile but got one")
+			}
+
+			if iccErr == nil {
+				t.Errorf("Expected ICC profile error but got none")
+			} else if expected, actual := expectedErr, iccErr.Error(); expected != actual {
+				t.Errorf("Expected ICC profile error '%s' but got '%s'", expected, actual)
+			}
+
+			if expected, actual := uint32(15), md.PixelWidth; expected != actual {
+				t.Errorf("Expected image width of %d but got %d", expected, actual)
+			}
+			if expected, actual := uint32(16), md.PixelHeight; expected != actual {
+				t.Errorf("Expected image height of %d but got %d", expected, actual)
+			}
+			if expected, actual := uint32(8), md.BitsPerComponent; expected != actual {
+				t.Errorf("Expected image bits per component of %d but got %d", expected, actual)
+			}
+		}
+	}
+
+	t.Run("returns error if stream doesn't begin with start-of-image segment", func(t *testing.T) {
+		data := &bytes.Buffer{}
+		data.Write([]byte{0xFF, byte(markerTypeEndOfImage)})
+
+		_, err := extractMetadata(data)
+
+		if err == nil {
+			t.Errorf("Expected an error but succeeded")
+		} else if expected, actual := "stream does not begin with start-of-image", err.Error(); expected != actual {
+			t.Errorf("Expected error '%s' but got '%s'", expected, actual)
+		}
+	})
 
 	t.Run("returns error with no start-of-frame segment", func(t *testing.T) {
 		data := &bytes.Buffer{}
@@ -30,51 +78,42 @@ func TestExtractMetadata(t *testing.T) {
 		}
 	})
 
-	t.Run("returns error if ICC chunk number is higher than total chunks", func(t *testing.T) {
+	t.Run("returns metadata without ICC profile if ICC chunk number is higher than total chunks", func(t *testing.T) {
 		data := &bytes.Buffer{}
 		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
-		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
+		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x08, 0x00, 0x10, 0x00, 0x0F})
 		writeICCProfileChunk(data, 2, 1, nil)
+		data.Write([]byte{0xFF, byte(markerTypeStartOfScan), 0x00, 0x02})
 
-		_, err := extractMetadata(data)
+		md, err := extractMetadata(data)
 
-		if err == nil {
-			t.Errorf("Expected error but succeeded")
-		} else if expected, actual := "invalid ICC profile chunk number", err.Error(); expected != actual {
-			t.Errorf("Expected error '%s' but got '%s'", expected, actual)
-		}
+		assertMetadataICCProfileError(md, err, "invalid ICC profile chunk number", t)
 	})
 
-	t.Run("returns error if subsequent ICC chunks specify different total chunks", func(t *testing.T) {
+	t.Run("returns metadata without ICC profile if subsequent ICC chunks specify different total chunks", func(t *testing.T) {
 		data := &bytes.Buffer{}
 		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
-		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
+		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x08, 0x00, 0x10, 0x00, 0x0F})
 		writeICCProfileChunk(data, 1, 2, nil)
 		writeICCProfileChunk(data, 2, 3, nil)
+		data.Write([]byte{0xFF, byte(markerTypeStartOfScan), 0x00, 0x02})
 
-		_, err := extractMetadata(data)
+		md, err := extractMetadata(data)
 
-		if err == nil {
-			t.Errorf("Expected error but succeeded")
-		} else if expected, actual := "inconsistent ICC profile chunk count", err.Error(); expected != actual {
-			t.Errorf("Expected error '%s' but got '%s'", expected, actual)
-		}
+		assertMetadataICCProfileError(md, err, "inconsistent ICC profile chunk count", t)
 	})
 
-	t.Run("returns error if an ICC chunk is duplicated", func(t *testing.T) {
+	t.Run("returns metadata without ICC profile if an ICC chunk is duplicated", func(t *testing.T) {
 		data := &bytes.Buffer{}
 		data.Write([]byte{0xFF, byte(markerTypeStartOfImage)})
-		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00})
+		data.Write([]byte{0xFF, byte(markerTypeStartOfFrameBaseline), 0x00, 0x07, 0x08, 0x00, 0x10, 0x00, 0x0F})
 		writeICCProfileChunk(data, 1, 3, nil)
 		writeICCProfileChunk(data, 1, 3, nil)
+		data.Write([]byte{0xFF, byte(markerTypeStartOfScan), 0x00, 0x02})
 
-		_, err := extractMetadata(data)
+		md, err := extractMetadata(data)
 
-		if err == nil {
-			t.Errorf("Expected error but succeeded")
-		} else if expected, actual := "duplicated ICC profile chunk", err.Error(); expected != actual {
-			t.Errorf("Expected error '%s' but got '%s'", expected, actual)
-		}
+		assertMetadataICCProfileError(md, err, "duplicated ICC profile chunk", t)
 	})
 
 	t.Run("returns metadata without ICC profile if an ICC chunk is missing", func(t *testing.T) {
@@ -89,26 +128,7 @@ func TestExtractMetadata(t *testing.T) {
 
 		md, err := extractMetadata(data)
 
-		if err != nil {
-			t.Errorf("Expected success but got error: %v", err)
-		}
-
-		if md == nil {
-			t.Errorf("Expected metdata but got none")
-		} else {
-			if md.ICCProfileData != nil {
-				t.Errorf("Expected no ICC profile but got one")
-			}
-			if expected, actual := uint32(15), md.PixelWidth; expected != actual {
-				t.Errorf("Expected image width of %d but got %d", expected, actual)
-			}
-			if expected, actual := uint32(16), md.PixelHeight; expected != actual {
-				t.Errorf("Expected image height of %d but got %d", expected, actual)
-			}
-			if expected, actual := uint32(8), md.BitsPerComponent; expected != actual {
-				t.Errorf("Expected image bits per component of %d but got %d", expected, actual)
-			}
-		}
+		assertMetadataICCProfileError(md, err, "incomplete ICC profile data", t)
 	})
 
 	t.Run("extracts ICC profile data from all ICC profile chunks", func(t *testing.T) {
@@ -130,20 +150,26 @@ func TestExtractMetadata(t *testing.T) {
 			t.Errorf("Expected success but got error: %v", err)
 		}
 
-		if md.ICCProfileData == nil {
+		iccData, iccErr := md.ICCProfileData()
+
+		if iccErr != nil {
+			t.Errorf("Expected ICC profile data to be extracted successfully but got error: %v", iccErr)
+		}
+
+		if iccData == nil {
 			t.Errorf("Expected ICC profile data to be extracted but got none")
 		} else {
-			if expected, actual := len(iccProfileData1)+len(iccProfileData2), len(md.ICCProfileData); expected != actual {
+			if expected, actual := len(iccProfileData1)+len(iccProfileData2), len(iccData); expected != actual {
 				t.Fatalf("Expected %d bytes of ICC profile data but got %d", expected, actual)
 			}
 
 			for i := range iccProfileData2 {
-				if expected, actual := iccProfileData2[i], md.ICCProfileData[i]; expected != actual {
+				if expected, actual := iccProfileData2[i], iccData[i]; expected != actual {
 					t.Fatalf("Expected ICC profile byte %02x but got %02x", expected, actual)
 				}
 			}
 			for i := range iccProfileData1 {
-				if expected, actual := iccProfileData1[i], md.ICCProfileData[len(iccProfileData2)+i]; expected != actual {
+				if expected, actual := iccProfileData1[i], iccData[len(iccProfileData2)+i]; expected != actual {
 					t.Fatalf("Expected ICC profile byte %02x but got %02x", expected, actual)
 				}
 			}
