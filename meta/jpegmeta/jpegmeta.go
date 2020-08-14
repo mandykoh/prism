@@ -9,6 +9,9 @@ import (
 	"io"
 )
 
+// Format specifies the image format handled by this package
+var Format = meta.ImageFormat("JPEG")
+
 var iccProfileIdentifier = []byte("ICC_PROFILE\x00")
 
 // Load loads the metadata for a JPEG image stream.
@@ -30,7 +33,7 @@ func Load(r io.Reader) (md *meta.Data, imgStream io.Reader, err error) {
 
 func extractMetadata(r binary.Reader) (md *meta.Data, err error) {
 	metadataExtracted := false
-	md = &meta.Data{}
+	md = &meta.Data{Format: Format}
 	segReader := NewSegmentReader(r)
 
 	defer func() {

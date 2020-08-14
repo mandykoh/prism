@@ -7,6 +7,7 @@ import (
 
 // Data represents the metadata for an image.
 type Data struct {
+	Format           ImageFormat
 	PixelWidth       uint32
 	PixelHeight      uint32
 	BitsPerComponent uint32

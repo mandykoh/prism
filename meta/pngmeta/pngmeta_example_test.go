@@ -41,6 +41,7 @@ func printICCProfile(md *meta.Data) {
 }
 
 func printMetadata(md *meta.Data, img image.Image) {
+	fmt.Printf("Format: %s\n", md.Format)
 	fmt.Printf("BitsPerComponent: %d\n", md.BitsPerComponent)
 	fmt.Printf("PixelHeight: %d\n", md.PixelHeight)
 	fmt.Printf("PixelWidth: %d\n", md.PixelWidth)
@@ -69,6 +70,7 @@ func ExampleLoad_basicPNGMetadata() {
 	printMetadata(md, img)
 
 	// Output:
+	// Format: PNG
 	// BitsPerComponent: 8
 	// PixelHeight: 1200
 	// PixelWidth: 1200

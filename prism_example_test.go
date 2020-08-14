@@ -2,13 +2,13 @@ package prism_test
 
 import (
 	"fmt"
+	"github.com/mandykoh/prism"
 	"github.com/mandykoh/prism/adobergb"
 	"github.com/mandykoh/prism/ciexyz"
 	"github.com/mandykoh/prism/displayp3"
 	"github.com/mandykoh/prism/prophotorgb"
 	"github.com/mandykoh/prism/srgb"
 	"image"
-	"image/draw"
 	_ "image/jpeg"
 	"image/png"
 	_ "image/png"
@@ -29,10 +29,7 @@ func loadImage(path string) *image.NRGBA {
 		panic(err)
 	}
 
-	nrgbaImg := image.NewNRGBA(image.Rect(0, 0, img.Bounds().Dx(), img.Bounds().Dy()))
-	draw.Draw(nrgbaImg, nrgbaImg.Rect, img, img.Bounds().Min, draw.Src)
-
-	return nrgbaImg
+	return prism.ConvertImageToNGRBA(img)
 }
 
 func compare(img1, img2 *image.NRGBA, threshold int) float64 {

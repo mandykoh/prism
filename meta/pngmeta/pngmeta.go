@@ -12,6 +12,9 @@ import (
 	"strings"
 )
 
+// Format specifies the image format handled by this package
+var Format = meta.ImageFormat("PNG")
+
 var pngSignature = [8]byte{0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}
 
 // Load loads the metadata for a PNG image stream.
@@ -33,7 +36,7 @@ func Load(r io.Reader) (md *meta.Data, imgStream io.Reader, err error) {
 
 func extractMetadata(r binary.Reader) (md *meta.Data, err error) {
 	metadataExtracted := false
-	md = &meta.Data{}
+	md = &meta.Data{Format: Format}
 
 	defer func() {
 		if r := recover(); r != nil {

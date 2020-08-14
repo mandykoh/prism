@@ -68,14 +68,17 @@ Another way of stating this problem is that colour values in images are _encoded
 
 ### Metadata extraction
 
-Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is supported for JPEG and PNG data. The following example demonstrates this using [`jpegmeta.Load`](https://pkg.go.dev/github.com/mandykoh/prism/meta/jpegmeta?tab=doc#Load):
+Image metadata can be extracted from images without needing to consume the entire image stream. Currently, this is supported for JPEG and PNG data. The following example demonstrates this using [`autometa.Load`](https://pkg.go.dev/github.com/mandykoh/prism/meta/autometa?tab=doc#Load):
 
 ```go
 // Get a meta.Data instance containing image details and a stream to the full image
-md, imgStream, err := jpegmeta.Load(inFile)
+md, imgStream, err := autometa.Load(inFile)
 if err != nil {
     panic(err)
 }
+
+// The metadata specifies the image format
+imgFormat := md.Format // eg. jpeg.Format
 
 // Load the full image after extracting metadata
 img, err = jpeg.Decode(imgStream)
@@ -87,20 +90,24 @@ if err != nil {
 Included in the metadata are basic details about the image such as the pixel dimensions and colour depth:
 
 ```go
+fmt.Printf("Image format: %s\n", md.Format)
 fmt.Printf("Image height in pixels: %d\n", md.PixelHeight)
 fmt.Printf("Image width in pixels: %d\n", md.PixelWidth)
 fmt.Printf("Bits per component: %d\n", md.BitsPerComponent)
 ```
 
-The stream returned by `jpegmeta.Load` reproduces the full image stream, so that it can be later passed to (for example) `jpeg.Decode` to load the rest of the image. This allows information like the size of the image to be known before having to load an extremely large image.
+The stream returned by `autometa.Load` reproduces the full image stream, so that it can be later passed to (for example) `jpeg.Decode` to load the rest of the image. This allows information like the size of the image to be known before having to load an extremely large image.
 
 If the image contained an ICC profile, it can be retrieved from the metadata:
 
 ```go
 iccProfile, err := md.ICCProfile()
+description, err := iccProfile.Description()  // eg. "sRGB IEC61966-2.1"
 ```
 
 If no profile exists, `nil` is returned without an error.
+
+`autometa.Load` delegates to format-specific loaders like `jpegmeta.Load` and `pngmeta.Load`; these can be used instead if you know the format of image.
 
 
 ### Colour conversion
