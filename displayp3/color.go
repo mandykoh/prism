@@ -43,6 +43,13 @@ func ColorFromLinear(r, g, b float32) Color {
 	return Color{linear.RGB{R: r, G: g, B: b}}
 }
 
+// ColorFromLinearNRGBA64 creates a Color instance from a linear NRGBA64 value.
+// The alpha value is returned as a normalised value between 0.0–1.0.
+func ColorFromLinearNRGBA64(c color.NRGBA64) (col Color, alpha float32) {
+	rgb, a := linear.RGBFromLinearNRGBA64(c)
+	return Color{rgb}, a
+}
+
 // ColorFromNRGBA creates a Color instance by interpreting an 8-bit NRGBA colour
 // as Display P3 encoded. The alpha value is returned as a normalised
 // value between 0.0–1.0.

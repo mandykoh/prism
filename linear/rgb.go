@@ -47,3 +47,30 @@ func (c RGB) ToEncodedRGBA(alpha float32, trcEncode func(float32) uint8) color.R
 		A: uint8(math.Max(math.Min(float64(alpha), 1.0), 0.0) * 255),
 	}
 }
+
+// ToLinearNRGBA64 returns a linear 16-bit NRGBA representation of this colour
+// suitable for use with instances of image.NRGBA64.
+//
+// alpha is the normalised alpha value and will be clipped to 0.0–1.0.
+func (c RGB) ToLinearNRGBA64(alpha float32) color.NRGBA64 {
+	return color.NRGBA64{
+		R: uint16(math.Round(math.Max(math.Min(float64(c.R), 1), 0) * 65535)),
+		G: uint16(math.Round(math.Max(math.Min(float64(c.G), 1), 0) * 65535)),
+		B: uint16(math.Round(math.Max(math.Min(float64(c.B), 1), 0) * 65535)),
+		A: uint16(math.Round(math.Max(math.Min(float64(alpha), 1), 0) * 65535)),
+	}
+}
+
+// RGBFromLinearNRGBA64 returns a normalised RGB instance representing the
+// specified 16-bit colour. The alpha component is returned as a normalised
+// value in the range 0.0-1.0.
+//
+// c is assumed to be a linear colour.
+func RGBFromLinearNRGBA64(c color.NRGBA64) (col RGB, alpha float32) {
+	return RGB{
+			R: float32(c.R) / 65535,
+			G: float32(c.G) / 65535,
+			B: float32(c.B) / 65535,
+		},
+		float32(c.A) / 65535
+}
