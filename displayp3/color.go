@@ -33,7 +33,7 @@ func (c Color) ToRGBA(alpha float32) color.RGBA {
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c Color) ToRGBA64(alpha float32) color.RGBA64 {
-	return c.RGB.ToEncodedRGBA64(alpha, srgb.ConvertLinearTo16Bit)
+	return c.RGB.ToEncodedRGBA64(alpha, srgb.To16Bit)
 }
 
 // ToXYZ returns a CIE XYZ representation of this colour.
