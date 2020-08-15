@@ -2,6 +2,7 @@ package prophotorgb
 
 import (
 	"github.com/mandykoh/prism/ciexyy"
+	"github.com/mandykoh/prism/linear"
 	"image"
 	"image/color"
 	"image/draw"
@@ -53,25 +54,14 @@ func EncodeColor(c color.Color) color.RGBA64 {
 
 // EncodeImage converts an image with linear colour into a Pro Photo RGB encoded
 // one.
-func EncodeImage(img draw.Image) {
-	bounds := img.Bounds()
-
-	switch inputImg := img.(type) {
-
-	case *image.RGBA64:
-		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-			for j := bounds.Min.X; j < bounds.Max.X; j++ {
-				inputImg.SetRGBA64(j, i, EncodeColor(inputImg.RGBA64At(j, i)))
-			}
-		}
-
-	default:
-		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-			for j := bounds.Min.X; j < bounds.Max.X; j++ {
-				img.Set(j, i, EncodeColor(img.At(j, i)))
-			}
-		}
-	}
+//
+// src is the linearised image to be encoded.
+//
+// dst is the image to write the result to, beginning at its origin.
+//
+// src and dst may be the same image.
+func EncodeImage(dst draw.Image, src image.Image) {
+	linear.TransformImageColor(dst, src, EncodeColor)
 }
 
 func encodedToLinear(v float64) float64 {
@@ -89,25 +79,14 @@ func LineariseColor(c color.Color) color.RGBA64 {
 
 // LineariseImage converts an image with Pro Photo RGB encoded colour to linear
 // colour.
-func LineariseImage(img draw.Image) {
-	bounds := img.Bounds()
-
-	switch inputImg := img.(type) {
-
-	case *image.RGBA64:
-		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-			for j := bounds.Min.X; j < bounds.Max.X; j++ {
-				inputImg.SetRGBA64(j, i, LineariseColor(inputImg.RGBA64At(j, i)))
-			}
-		}
-
-	default:
-		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-			for j := bounds.Min.X; j < bounds.Max.X; j++ {
-				img.Set(j, i, LineariseColor(img.At(j, i)))
-			}
-		}
-	}
+//
+// src is the encoded image to be linearised.
+//
+// dst is the image to write the result to, beginning at its origin.
+//
+// src and dst may be the same image.
+func LineariseImage(dst draw.Image, src image.Image) {
+	linear.TransformImageColor(dst, src, LineariseColor)
 }
 
 func linearToEncoded(v float64) float64 {

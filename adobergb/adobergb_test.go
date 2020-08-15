@@ -27,30 +27,33 @@ func BenchmarkEncodeImage(b *testing.B) {
 
 	yCbCrImg := loadImage("../test-images/pizza-rgb8-adobergb.jpg")
 
-	nrgbaImg := prism.ConvertImageToNRGBA(yCbCrImg)
-	LineariseImage(nrgbaImg)
+	nrgbaImg := image.NewNRGBA(yCbCrImg.Bounds())
+	LineariseImage(nrgbaImg, yCbCrImg)
 
-	rgbaImg := prism.ConvertImageToRGBA(yCbCrImg)
-	LineariseImage(rgbaImg)
+	rgbaImg := image.NewRGBA(yCbCrImg.Bounds())
+	LineariseImage(rgbaImg, yCbCrImg)
 
-	rgba64Img := prism.ConvertImageToRGBA64(yCbCrImg)
-	LineariseImage(rgba64Img)
+	rgba64Img := image.NewRGBA64(yCbCrImg.Bounds())
+	LineariseImage(rgba64Img, yCbCrImg)
 
 	b.Run("with NRGBA image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			EncodeImage(nrgbaImg)
+			result := image.NewNRGBA(nrgbaImg.Rect)
+			EncodeImage(result, nrgbaImg)
 		}
 	})
 
 	b.Run("with RGBA image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			EncodeImage(rgbaImg)
+			result := image.NewRGBA(rgbaImg.Rect)
+			EncodeImage(result, rgbaImg)
 		}
 	})
 
 	b.Run("with RGBA64 image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			EncodeImage(rgba64Img)
+			result := image.NewRGBA64(rgba64Img.Rect)
+			EncodeImage(result, rgba64Img)
 		}
 	})
 }
@@ -79,19 +82,22 @@ func BenchmarkLineariseImage(b *testing.B) {
 
 	b.Run("with NRGBA image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			LineariseImage(nrgbaImg)
+			result := image.NewNRGBA(nrgbaImg.Rect)
+			LineariseImage(result, nrgbaImg)
 		}
 	})
 
 	b.Run("with RGBA image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			LineariseImage(rgbaImg)
+			result := image.NewRGBA(rgbaImg.Rect)
+			LineariseImage(result, rgbaImg)
 		}
 	})
 
 	b.Run("with RGBA64 image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			LineariseImage(rgba64Img)
+			result := image.NewRGBA64(rgba64Img.Rect)
+			LineariseImage(result, rgba64Img)
 		}
 	})
 }

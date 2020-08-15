@@ -190,17 +190,13 @@ func Example_linearisedResampling() {
 	img := loadImage("test-images/checkerboard-srgb.png")
 
 	rgba64 := image.NewRGBA64(img.Bounds())
-	draw.Draw(rgba64, rgba64.Rect, img, img.Bounds().Min, draw.Src)
-
-	srgb.LineariseImage(rgba64)
+	srgb.LineariseImage(rgba64, img)
 
 	resampled := image.NewNRGBA64(image.Rect(0, 0, rgba64.Rect.Dx()/2, rgba64.Rect.Dy()/2))
 	draw.BiLinear.Scale(resampled, resampled.Rect, rgba64, rgba64.Rect, draw.Src, nil)
 
-	srgb.EncodeImage(rgba64)
-
 	rgba := image.NewRGBA(resampled.Rect)
-	draw.Draw(rgba, rgba.Rect, resampled, resampled.Rect.Min, draw.Src)
+	srgb.EncodeImage(rgba, resampled)
 
 	writeImage("example-output/checkerboard-resampled.png", rgba)
 
