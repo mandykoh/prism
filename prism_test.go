@@ -255,7 +255,7 @@ func BenchmarkColorConversion(b *testing.B) {
 
 		b.Run("NRGBA to NRGBA with CovertImageToNRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToNGRBA(nrgbaImg)
+				_ = ConvertImageToNRGBA(nrgbaImg)
 			}
 		})
 
@@ -263,13 +263,13 @@ func BenchmarkColorConversion(b *testing.B) {
 			// RGBA to NRGBA is more correctly done via a colour space as tonal
 			// response encoding is applied on top of alpha premultiplication.
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToNGRBA(rgbaImg)
+				_ = ConvertImageToNRGBA(rgbaImg)
 			}
 		})
 
 		b.Run("YCbCr to NRGBA with CovertImageToNRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToNGRBA(yCbCrImg)
+				_ = ConvertImageToNRGBA(yCbCrImg)
 			}
 		})
 	})

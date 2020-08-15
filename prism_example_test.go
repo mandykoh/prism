@@ -30,7 +30,7 @@ func loadImage(path string) *image.NRGBA {
 		panic(err)
 	}
 
-	return prism.ConvertImageToNGRBA(img)
+	return prism.ConvertImageToNRGBA(img)
 }
 
 func compare(img1, img2 *image.NRGBA, threshold int) float64 {

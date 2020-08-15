@@ -12,7 +12,7 @@ import (
 // ConvertImageToNRGBA is a convenience function for getting an NRGBA image from
 // any image. If the specified image isn’t already NRGBA, a conversion is
 // performed.
-func ConvertImageToNGRBA(img image.Image) *image.NRGBA {
+func ConvertImageToNRGBA(img image.Image) *image.NRGBA {
 	switch inputImg := img.(type) {
 
 	case *image.NRGBA:
