@@ -114,5 +114,4 @@ func linearToEncoded(v float64) float64 {
 		scaled = 1.055*math.Pow(v, 1/2.4) - 0.055
 	}
 	return math.Min(math.Max(scaled, 0.0), 1.0)
-	// return scaled
 }
