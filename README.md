@@ -18,6 +18,7 @@ Still missing:
 
 * Embedding of tagged colour profiles in image
 * Exposing colour data from ICC profiles (to enable conversions between arbitrary profiles)
+* Rendering intent support
 * CMYK support
 
 See the [API documentation](https://pkg.go.dev/github.com/mandykoh/prism) for more details.
