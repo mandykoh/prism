@@ -12,12 +12,15 @@ var encoded8ToLinearLUT []float32
 var init16BitLUTsOnce sync.Once
 var linearToEncoded16LUT []uint16
 
+func init() {
+	init8BitLUTs()
+}
+
 // From8Bit converts an 8-bit Pro Photo RGB encoded value to a normalised linear
 // value between 0.0 and 1.0.
 //
 // This implementation uses a fast look-up table without sacrificing accuracy.
 func From8Bit(v uint8) float32 {
-	init8BitLUTs()
 	return encoded8ToLinearLUT[v]
 }
 
@@ -53,7 +56,6 @@ func init16BitLUTs() {
 // This implementation uses a fast look-up table and is approximate. For more
 // accuracy, see ConvertLinearTo8Bit.
 func To8Bit(linear float32) uint8 {
-	init8BitLUTs()
 	clipped := math.Min(math.Max(float64(linear), 0), 1)
 	return linearToEncoded8LUT[int(math.Round(clipped*511))]
 }
