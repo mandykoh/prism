@@ -53,9 +53,20 @@ func EncodeColor(c color.Color) color.RGBA64 {
 func EncodeImage(img draw.Image) {
 	bounds := img.Bounds()
 
-	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-		for j := bounds.Min.X; j < bounds.Max.X; j++ {
-			img.Set(j, i, EncodeColor(img.At(j, i)))
+	switch inputImg := img.(type) {
+
+	case *image.RGBA64:
+		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+			for j := bounds.Min.X; j < bounds.Max.X; j++ {
+				inputImg.SetRGBA64(j, i, EncodeColor(inputImg.RGBA64At(j, i)))
+			}
+		}
+
+	default:
+		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+			for j := bounds.Min.X; j < bounds.Max.X; j++ {
+				img.Set(j, i, EncodeColor(img.At(j, i)))
+			}
 		}
 	}
 }
@@ -103,4 +114,5 @@ func linearToEncoded(v float64) float64 {
 		scaled = 1.055*math.Pow(v, 1/2.4) - 0.055
 	}
 	return math.Min(math.Max(scaled, 0.0), 1.0)
+	// return scaled
 }

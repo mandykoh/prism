@@ -8,6 +8,53 @@ import (
 	"testing"
 )
 
+func BenchmarkEncodeImage(b *testing.B) {
+
+	loadImage := func(path string) image.Image {
+		inFile, err := os.Open(path)
+		if err != nil {
+			panic(err)
+		}
+		defer inFile.Close()
+
+		img, _, err := image.Decode(inFile)
+		if err != nil {
+			panic(err)
+		}
+
+		return img
+	}
+
+	yCbCrImg := loadImage("../test-images/pizza-rgb8-srgb.jpg")
+
+	nrgbaImg := prism.ConvertImageToNRGBA(yCbCrImg)
+	LineariseImage(nrgbaImg)
+
+	rgbaImg := prism.ConvertImageToRGBA(yCbCrImg)
+	LineariseImage(rgbaImg)
+
+	rgba64Img := prism.ConvertImageToRGBA64(yCbCrImg)
+	LineariseImage(rgba64Img)
+
+	b.Run("with NRGBA image", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			EncodeImage(nrgbaImg)
+		}
+	})
+
+	b.Run("with RGBA image", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			EncodeImage(rgbaImg)
+		}
+	})
+
+	b.Run("with RGBA64 image", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			EncodeImage(rgba64Img)
+		}
+	})
+}
+
 func BenchmarkLineariseImage(b *testing.B) {
 
 	loadImage := func(path string) image.Image {
