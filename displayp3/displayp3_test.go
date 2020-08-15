@@ -1,4 +1,4 @@
-package adobergb
+package displayp3
 
 import (
 	"github.com/mandykoh/prism"
@@ -25,7 +25,7 @@ func BenchmarkLineariseImage(b *testing.B) {
 		return img
 	}
 
-	yCbCrImg := loadImage("../test-images/pizza-rgb8-adobergb.jpg")
+	yCbCrImg := loadImage("../test-images/pizza-rgb8-displayp3.jpg")
 	nrgbaImg := prism.ConvertImageToNRGBA(yCbCrImg)
 	rgbaImg := prism.ConvertImageToRGBA(yCbCrImg)
 	rgba64Img := prism.ConvertImageToRGBA64(yCbCrImg)
@@ -45,18 +45,6 @@ func BenchmarkLineariseImage(b *testing.B) {
 	b.Run("with RGBA64 image", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			LineariseImage(rgba64Img)
-		}
-	})
-}
-
-func TestConvertLinearTo8Bit(t *testing.T) {
-
-	t.Run("clips linear values to between 0 and 1", func(t *testing.T) {
-		if expected, actual := ConvertLinearTo8Bit(0), ConvertLinearTo8Bit(-0.1); expected != actual {
-			t.Errorf("Expected converted value to be %v but was %v", expected, actual)
-		}
-		if expected, actual := ConvertLinearTo8Bit(1), ConvertLinearTo8Bit(1.1); expected != actual {
-			t.Errorf("Expected converted value to be %v but was %v", expected, actual)
 		}
 	})
 }

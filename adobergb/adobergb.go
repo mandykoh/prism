@@ -2,6 +2,7 @@ package adobergb
 
 import (
 	"github.com/mandykoh/prism/ciexyy"
+	"image"
 	"image/color"
 	"image/draw"
 	"math"
@@ -75,9 +76,20 @@ func LineariseColor(c color.Color) color.RGBA64 {
 func LineariseImage(img draw.Image) {
 	bounds := img.Bounds()
 
-	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-		for j := bounds.Min.X; j < bounds.Max.X; j++ {
-			img.Set(j, i, LineariseColor(img.At(j, i)))
+	switch inputImg := img.(type) {
+
+	case *image.RGBA64:
+		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+			for j := bounds.Min.X; j < bounds.Max.X; j++ {
+				inputImg.SetRGBA64(j, i, LineariseColor(inputImg.RGBA64At(j, i)))
+			}
+		}
+
+	default:
+		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+			for j := bounds.Min.X; j < bounds.Max.X; j++ {
+				img.Set(j, i, LineariseColor(img.At(j, i)))
+			}
 		}
 	}
 }
