@@ -38,6 +38,9 @@ func BenchmarkColorConversion(b *testing.B) {
 	rgbaImg := image.NewRGBA(yCbCrImg.Bounds())
 	draw.Draw(rgbaImg, rgbaImg.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
 
+	rgba64Img := image.NewRGBA64(yCbCrImg.Bounds())
+	draw.Draw(rgba64Img, rgba64Img.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
+
 	b.Run("between colour spaces", func(b *testing.B) {
 		nrgbaOutput := image.NewNRGBA(yCbCrImg.Bounds())
 		rgbaOutput := image.NewRGBA(yCbCrImg.Bounds())
@@ -270,6 +273,58 @@ func BenchmarkColorConversion(b *testing.B) {
 		b.Run("YCbCr to NRGBA with CovertImageToNRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				_ = ConvertImageToNRGBA(yCbCrImg)
+			}
+		})
+
+		b.Run("NRGBA to RGBA with CovertImageToRGBA()", func(b *testing.B) {
+			// RGBA to NRGBA is more correctly done via a colour space as tonal
+			// response encoding is applied on top of alpha premultiplication.
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA(nrgbaImg)
+			}
+		})
+
+		b.Run("RGBA64 to RGBA with CovertImageToRGBA()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA(rgba64Img)
+			}
+		})
+
+		b.Run("RGBA to RGBA with CovertImageToRGBA()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA(rgbaImg)
+			}
+		})
+
+		b.Run("YCbCr to RGBA with CovertImageToRGBA()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA(yCbCrImg)
+			}
+		})
+
+		b.Run("NRGBA to RGBA64 with CovertImageToRGBA64()", func(b *testing.B) {
+			// RGBA to NRGBA is more correctly done via a colour space as tonal
+			// response encoding is applied on top of alpha premultiplication.
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA64(nrgbaImg)
+			}
+		})
+
+		b.Run("RGBA64 to RGBA64 with CovertImageToRGBA64()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA64(rgba64Img)
+			}
+		})
+
+		b.Run("RGBA to RGBA64 with CovertImageToRGBA64()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA64(rgbaImg)
+			}
+		})
+
+		b.Run("YCbCr to RGBA64 with CovertImageToRGBA64()", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ConvertImageToRGBA64(yCbCrImg)
 			}
 		})
 	})

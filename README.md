@@ -116,25 +116,30 @@ If no profile exists, `nil` is returned without an error.
 
 ### Colour linearisation
 
-An image can be easily converted from its colour space encoding (eg sRGB) to a linear encoding:
+An image can be easily converted from its colour space encoding (eg sRGB) to a linear encoding. Because this operation can be lossy in 8-bit colour depths, it’s a good idea to first convert images to 16-bit colour (eg instances of `image.NRGBA64` or `image.RGBA64`). `prism` provides utility functions for such conversions:
+
+```go
+img = prism.ConvertImageToRGBA64(img)
+```
+
+Then the image can be linearised:
 
 ```go
 srgb.LineariseImage(img)
 ```
 
-Because this operation can be lossy in 8-bit colour depths, it’s a good idea to first convert images to 16-bit colour (eg instances of `image.NRGBA64` or `image.RGBA64`).
-
 The image can then be passed to operations that expect an `image.Image` but assume linear colour. Here we pass it to the `Bilinear` rescaler to reduce the image to half its original size, which will now produce a correct result in linear space:
 
 ```go
-resampled := image.NewNRGBA64(image.Rect(0, 0, img.Rect.Dx()/2, img.Rect.Dy()/2))
+resampled := image.NewRGBA64(image.Rect(0, 0, img.Rect.Dx()/2, img.Rect.Dy()/2))
 draw.BiLinear.Scale(resampled, resampled.Rect, img, img.Bounds(), draw.Src, nil)
 ```
 
-Note that the output is still linearised, so before writing the image to an output file (eg in PNG or JPEG format), we need to re-encode it back to sRGB space:
+Note that the output is still linearised, so before writing the image to an output file (eg in PNG or JPEG format), we need to re-encode it back to sRGB space, and probably also want to convert it back to 8-bit colour:
 
 ```go
 srgb.EncodeImage(resampled)
+resampled = prism.ConvertImageToRGBA(resampled)
 ```
 
 
