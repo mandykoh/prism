@@ -136,7 +136,7 @@ linearisedImg := image.NewRGBA64(img.Bounds())
 srgb.LineariseImage(linearisedImg, img)
 ``` 
 
-The image can then be passed to operations that expect an `image.Image` but assume linear colour. Here we pass it to the `Bilinear` rescaler to reduce the image to half its original size, which will now produce a correct result in linear space:
+The image can then be passed to operations that expect an `image.Image` but assume linear colour. Here we pass it to the `BiLinear` rescaler to reduce the image to half its original size, which will now produce a correct result in linear space:
 
 ```go
 resampled := image.NewRGBA64(image.Rect(0, 0, img.Rect.Dx()/2, img.Rect.Dy()/2))
