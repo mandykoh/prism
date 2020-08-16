@@ -123,11 +123,18 @@ An image can be easily converted from its colour space encoding (eg sRGB) to a l
 img = prism.ConvertImageToRGBA64(img)
 ```
 
-Then the image can be linearised:
+Then the image can be linearised (here, using itself as both source and destination):
 
 ```go
-srgb.LineariseImage(img)
+srgb.LineariseImage(img, img)
 ```
+
+Alternatively a new blank 16-bit image can be created and the original image linearised into it:
+
+```go
+linearisedImg := image.NewRGBA64(img.Bounds())
+srgb.LineariseImage(linearisedImg, img)
+``` 
 
 The image can then be passed to operations that expect an `image.Image` but assume linear colour. Here we pass it to the `Bilinear` rescaler to reduce the image to half its original size, which will now produce a correct result in linear space:
 
@@ -139,8 +146,8 @@ draw.BiLinear.Scale(resampled, resampled.Rect, img, img.Bounds(), draw.Src, nil)
 Note that the output is still linearised, so before writing the image to an output file (eg in PNG or JPEG format), we need to re-encode it back to sRGB space, and probably also want to convert it back to 8-bit colour:
 
 ```go
-srgb.EncodeImage(resampled)
-resampled = prism.ConvertImageToRGBA(resampled)
+encodedImg := image.NewRGBA(resampled.Bounds())
+srgb.EncodeImage(encodedImg, resampled)
 ```
 
 
