@@ -6,6 +6,35 @@ import (
 	"image/draw"
 )
 
+func NormalisedTo255(v float32) uint8 {
+	if v <= 0 {
+		return 0
+	}
+	if v >= 1 {
+		return 255
+	}
+	return uint8(v*255 + 0.5)
+}
+
+func NormalisedTo511(v float32) uint16 {
+	if v <= 0 {
+		return 0
+	}
+	if v >= 1 {
+		return 511
+	}
+	return uint16(v*511 + 0.5)
+}
+
+func NormalisedTo65535(v float32) uint16 {
+	if v <= 0 {
+		return 0
+	} else if v >= 1 {
+		return 65535
+	}
+	return uint16(v*65535 + 0.5)
+}
+
 // TransformImageColor applies a colour transformation function to all pixels of
 // src, writing the results to dst at its origin.
 //

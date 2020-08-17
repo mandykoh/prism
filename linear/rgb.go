@@ -2,7 +2,6 @@ package linear
 
 import (
 	"image/color"
-	"math"
 )
 
 // RGB represents a linear normalised RGB colour value in an unspecified colour
@@ -29,7 +28,7 @@ func (c RGB) ToEncodedNRGBA(alpha float32, trcEncode func(float32) uint8) color.
 		R: trcEncode(c.R),
 		G: trcEncode(c.G),
 		B: trcEncode(c.B),
-		A: uint8(math.Max(math.Min(float64(alpha), 1), 0) * 255),
+		A: NormalisedTo255(alpha),
 	}
 }
 
@@ -44,7 +43,7 @@ func (c RGB) ToEncodedRGBA(alpha float32, trcEncode func(float32) uint8) color.R
 		R: trcEncode(c.R * alpha),
 		G: trcEncode(c.G * alpha),
 		B: trcEncode(c.B * alpha),
-		A: uint8(math.Max(math.Min(float64(alpha), 1.0), 0.0) * 255),
+		A: NormalisedTo255(alpha),
 	}
 }
 
@@ -59,7 +58,7 @@ func (c RGB) ToEncodedRGBA64(alpha float32, trcEncode func(float32) uint16) colo
 		R: trcEncode(c.R * alpha),
 		G: trcEncode(c.G * alpha),
 		B: trcEncode(c.B * alpha),
-		A: uint16(math.Max(math.Min(float64(alpha), 1.0), 0.0) * 65535),
+		A: NormalisedTo65535(alpha),
 	}
 }
 
@@ -68,13 +67,11 @@ func (c RGB) ToEncodedRGBA64(alpha float32, trcEncode func(float32) uint16) colo
 //
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c RGB) ToLinearRGBA64(alpha float32) color.RGBA64 {
-	clippedAlpha := math.Max(math.Min(float64(alpha), 1), 0) * 65535
-
 	return color.RGBA64{
-		R: uint16(math.Round(float64(c.R) * clippedAlpha)),
-		G: uint16(math.Round(float64(c.G) * clippedAlpha)),
-		B: uint16(math.Round(float64(c.B) * clippedAlpha)),
-		A: uint16(math.Round(clippedAlpha)),
+		R: NormalisedTo65535(c.R * alpha),
+		G: NormalisedTo65535(c.G * alpha),
+		B: NormalisedTo65535(c.B * alpha),
+		A: NormalisedTo65535(alpha),
 	}
 }
 
