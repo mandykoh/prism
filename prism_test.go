@@ -41,6 +41,19 @@ func BenchmarkColorConversion(b *testing.B) {
 	rgba64Img := image.NewRGBA64(yCbCrImg.Bounds())
 	draw.Draw(rgba64Img, rgba64Img.Rect, yCbCrImg, yCbCrImg.Rect.Min, draw.Src)
 
+	b.Run("linearisation and encoding", func(b *testing.B) {
+
+		b.Run("from 8-bit to 16-bit and back", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				linearImg := image.NewRGBA64(rgbaImg.Rect)
+				adobergb.LineariseImage(linearImg, rgbaImg)
+
+				encodedImg := image.NewRGBA(linearImg.Rect)
+				adobergb.EncodeImage(encodedImg, linearImg)
+			}
+		})
+	})
+
 	b.Run("between colour spaces", func(b *testing.B) {
 		nrgbaOutput := image.NewNRGBA(yCbCrImg.Bounds())
 		rgbaOutput := image.NewRGBA(yCbCrImg.Bounds())
