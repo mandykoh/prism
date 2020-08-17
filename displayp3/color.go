@@ -49,7 +49,7 @@ func (c Color) ToXYZ() ciexyz.Color {
 // color.Color value. The alpha value is returned as a normalised value between
 // 0.0–1.0.
 func ColorFromEncodedColor(c color.Color) (col Color, alpha float32) {
-	rgb, a := linear.RGBFromEncoded(c, srgb.Convert16BitToLinear)
+	rgb, a := linear.RGBFromEncoded(c, srgb.From16Bit)
 	return Color{rgb}, a
 }
 

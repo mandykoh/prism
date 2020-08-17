@@ -1,7 +1,8 @@
 package srgb
 
 import (
-	"math"
+	"github.com/mandykoh/prism/linear"
+	"github.com/mandykoh/prism/linear/lut"
 	"sync"
 )
 
@@ -11,6 +12,7 @@ var encoded8ToLinearLUT []float32
 
 var init16BitLUTsOnce sync.Once
 var linearToEncoded16LUT []uint16
+var encoded16ToLinearLUT []float32
 
 func init() {
 	init8BitLUTs()
@@ -24,29 +26,32 @@ func From8Bit(v uint8) float32 {
 	return encoded8ToLinearLUT[v]
 }
 
+// From16Bit converts a 16-bit sRGB encoded value to a normalised linear value
+// between 0.0 and 1.0.
+//
+// This implementation uses a fast look-up table without sacrificing accuracy.
+func From16Bit(v uint16) float32 {
+	init16BitLUTs()
+	return encoded16ToLinearLUT[v]
+}
+
 func init8BitLUTs() {
 	init8BitLUTsOnce.Do(func() {
-		to8BitLUT := make([]uint8, 512)
-		for i := range to8BitLUT {
-			to8BitLUT[i] = ConvertLinearTo8Bit(float32(i) / 511)
-		}
-		linearToEncoded8LUT = to8BitLUT
+		to8BitLUT := lut.BuildLinearTo8Bit(ConvertLinearTo8Bit)
+		linearToEncoded8LUT = to8BitLUT[:]
 
-		from8BitLUT := make([]float32, 256)
-		for i := range from8BitLUT {
-			from8BitLUT[i] = Convert8BitToLinear(uint8(i))
-		}
-		encoded8ToLinearLUT = from8BitLUT
+		from8BitLUT := lut.Build8BitToLinear(Convert8BitToLinear)
+		encoded8ToLinearLUT = from8BitLUT[:]
 	})
 }
 
 func init16BitLUTs() {
 	init16BitLUTsOnce.Do(func() {
-		to16BitLUT := make([]uint16, 65536)
-		for i := range to16BitLUT {
-			to16BitLUT[i] = ConvertLinearTo16Bit(float32(i) / 65535)
-		}
-		linearToEncoded16LUT = to16BitLUT
+		to16BitLUT := lut.BuildLinearTo16Bit(ConvertLinearTo16Bit)
+		linearToEncoded16LUT = to16BitLUT[:]
+
+		from16BitLUT := lut.Build16BitToLinear(Convert16BitToLinear)
+		encoded16ToLinearLUT = from16BitLUT[:]
 	})
 }
 
@@ -55,9 +60,8 @@ func init16BitLUTs() {
 //
 // This implementation uses a fast look-up table and is approximate. For more
 // accuracy, see ConvertLinearTo8Bit.
-func To8Bit(linear float32) uint8 {
-	clipped := math.Min(math.Max(float64(linear), 0), 1)
-	return linearToEncoded8LUT[int(math.Round(clipped*511))]
+func To8Bit(v float32) uint8 {
+	return linearToEncoded8LUT[linear.NormalisedTo511(v)]
 }
 
 // To16Bit converts a linear value to a 16-bit sRGB encoded value, clipping the
@@ -65,8 +69,7 @@ func To8Bit(linear float32) uint8 {
 //
 // This implementation uses a fast look-up table and is approximate. For more
 // accuracy, see ConvertLinearTo16Bit.
-func To16Bit(linear float32) uint16 {
+func To16Bit(v float32) uint16 {
 	init16BitLUTs()
-	clipped := math.Min(math.Max(float64(linear), 0), 1)
-	return linearToEncoded16LUT[int(math.Round(clipped*65535))]
+	return linearToEncoded16LUT[linear.NormalisedTo65535(v)]
 }
