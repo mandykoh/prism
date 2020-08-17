@@ -6,7 +6,8 @@ import (
 	"image/draw"
 )
 
-func NormalisedTo255(v float32) uint8 {
+// NormalisedTo8Bit clamps and scales a normalised value to the range 0-255.
+func NormalisedTo8Bit(v float32) uint8 {
 	if v <= 0 {
 		return 0
 	}
@@ -16,7 +17,8 @@ func NormalisedTo255(v float32) uint8 {
 	return uint8(v*255 + 0.5)
 }
 
-func NormalisedTo511(v float32) uint16 {
+// NormalisedTo9Bit clamps and scales a normalised value to the range 0-511.
+func NormalisedTo9Bit(v float32) uint16 {
 	if v <= 0 {
 		return 0
 	}
@@ -26,7 +28,8 @@ func NormalisedTo511(v float32) uint16 {
 	return uint16(v*511 + 0.5)
 }
 
-func NormalisedTo65535(v float32) uint16 {
+// NormalisedTo16Bit clamps and scales a normalised value to the range 0-65535.
+func NormalisedTo16Bit(v float32) uint16 {
 	if v <= 0 {
 		return 0
 	} else if v >= 1 {

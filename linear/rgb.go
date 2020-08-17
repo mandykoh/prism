@@ -28,7 +28,7 @@ func (c RGB) ToEncodedNRGBA(alpha float32, trcEncode func(float32) uint8) color.
 		R: trcEncode(c.R),
 		G: trcEncode(c.G),
 		B: trcEncode(c.B),
-		A: NormalisedTo255(alpha),
+		A: NormalisedTo8Bit(alpha),
 	}
 }
 
@@ -43,7 +43,7 @@ func (c RGB) ToEncodedRGBA(alpha float32, trcEncode func(float32) uint8) color.R
 		R: trcEncode(c.R * alpha),
 		G: trcEncode(c.G * alpha),
 		B: trcEncode(c.B * alpha),
-		A: NormalisedTo255(alpha),
+		A: NormalisedTo8Bit(alpha),
 	}
 }
 
@@ -58,7 +58,7 @@ func (c RGB) ToEncodedRGBA64(alpha float32, trcEncode func(float32) uint16) colo
 		R: trcEncode(c.R * alpha),
 		G: trcEncode(c.G * alpha),
 		B: trcEncode(c.B * alpha),
-		A: NormalisedTo65535(alpha),
+		A: NormalisedTo16Bit(alpha),
 	}
 }
 
@@ -68,10 +68,10 @@ func (c RGB) ToEncodedRGBA64(alpha float32, trcEncode func(float32) uint16) colo
 // alpha is the normalised alpha value and will be clipped to 0.0–1.0.
 func (c RGB) ToLinearRGBA64(alpha float32) color.RGBA64 {
 	return color.RGBA64{
-		R: NormalisedTo65535(c.R * alpha),
-		G: NormalisedTo65535(c.G * alpha),
-		B: NormalisedTo65535(c.B * alpha),
-		A: NormalisedTo65535(alpha),
+		R: NormalisedTo16Bit(c.R * alpha),
+		G: NormalisedTo16Bit(c.G * alpha),
+		B: NormalisedTo16Bit(c.B * alpha),
+		A: NormalisedTo16Bit(alpha),
 	}
 }
 

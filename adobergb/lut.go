@@ -61,7 +61,7 @@ func init16BitLUTs() {
 // This implementation uses a fast look-up table and is approximate. For more
 // accuracy, see ConvertLinearTo8Bit.
 func To8Bit(v float32) uint8 {
-	return linearToEncoded8LUT[linear.NormalisedTo511(v)]
+	return linearToEncoded8LUT[linear.NormalisedTo9Bit(v)]
 }
 
 // To16Bit converts a linear value to a 16-bit Adobe RGB encoded value, clipping
@@ -71,5 +71,5 @@ func To8Bit(v float32) uint8 {
 // accuracy, see ConvertLinearTo16Bit.
 func To16Bit(v float32) uint16 {
 	init16BitLUTs()
-	return linearToEncoded16LUT[linear.NormalisedTo65535(v)]
+	return linearToEncoded16LUT[linear.NormalisedTo16Bit(v)]
 }
