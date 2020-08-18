@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 )
 
 func loadImage(path string) *image.NRGBA {
@@ -30,7 +31,7 @@ func loadImage(path string) *image.NRGBA {
 		panic(err)
 	}
 
-	return prism.ConvertImageToNRGBA(img)
+	return prism.ConvertImageToNRGBA(img, runtime.NumCPU())
 }
 
 func compare(img1, img2 *image.NRGBA, threshold int) float64 {
@@ -190,13 +191,13 @@ func Example_linearisedResampling() {
 	img := loadImage("test-images/checkerboard-srgb.png")
 
 	rgba64 := image.NewRGBA64(img.Bounds())
-	srgb.LineariseImage(rgba64, img)
+	srgb.LineariseImage(rgba64, img, runtime.NumCPU())
 
 	resampled := image.NewNRGBA64(image.Rect(0, 0, rgba64.Rect.Dx()/2, rgba64.Rect.Dy()/2))
 	draw.BiLinear.Scale(resampled, resampled.Rect, rgba64, rgba64.Rect, draw.Src, nil)
 
 	rgba := image.NewRGBA(resampled.Rect)
-	srgb.EncodeImage(rgba, resampled)
+	srgb.EncodeImage(rgba, resampled, runtime.NumCPU())
 
 	writeImage("example-output/checkerboard-resampled.png", rgba)
 

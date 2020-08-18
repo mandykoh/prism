@@ -1,6 +1,7 @@
 package linear
 
 import (
+	"github.com/mandykoh/prism/parallel"
 	"image"
 	"image/color"
 	"image/draw"
@@ -43,7 +44,10 @@ func NormalisedTo16Bit(v float32) uint16 {
 // src, writing the results to dst at its origin.
 //
 // src and dst may be the same image.
-func TransformImageColor(dst draw.Image, src image.Image, transformColor func(color.Color) color.RGBA64) {
+//
+// parallelism specifies the degree of parallel processing; a value of 4
+// indicates that processing will be spread across four threads.
+func TransformImageColor(dst draw.Image, src image.Image, parallelism int, transformColor func(color.Color) color.RGBA64) {
 	bounds := src.Bounds()
 	dstOffsetX := dst.Bounds().Min.X - bounds.Min.X
 	dstOffsetY := dst.Bounds().Min.Y - bounds.Min.Y
@@ -52,57 +56,67 @@ func TransformImageColor(dst draw.Image, src image.Image, transformColor func(co
 
 	case *image.RGBA64:
 		if srcImg, ok := src.(*image.RGBA64); ok {
-			for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-				for j := bounds.Min.X; j < bounds.Max.X; j++ {
-					c := transformColor(srcImg.RGBA64At(j, i))
 
-					offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
-					dstImg.Pix[offset] = uint8(c.R >> 8)
-					dstImg.Pix[offset+1] = uint8(c.R & 0xFF)
-					dstImg.Pix[offset+2] = uint8(c.G >> 8)
-					dstImg.Pix[offset+3] = uint8(c.G & 0xFF)
-					dstImg.Pix[offset+4] = uint8(c.B >> 8)
-					dstImg.Pix[offset+5] = uint8(c.B & 0xFF)
-					dstImg.Pix[offset+6] = uint8(c.A >> 8)
-					dstImg.Pix[offset+7] = uint8(c.A & 0xFF)
+			parallel.Run(parallelism, func(workerNum int) {
+				for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+					for j := bounds.Min.X; j < bounds.Max.X; j++ {
+						c := transformColor(srcImg.RGBA64At(j, i))
+
+						offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
+						dstImg.Pix[offset] = uint8(c.R >> 8)
+						dstImg.Pix[offset+1] = uint8(c.R & 0xFF)
+						dstImg.Pix[offset+2] = uint8(c.G >> 8)
+						dstImg.Pix[offset+3] = uint8(c.G & 0xFF)
+						dstImg.Pix[offset+4] = uint8(c.B >> 8)
+						dstImg.Pix[offset+5] = uint8(c.B & 0xFF)
+						dstImg.Pix[offset+6] = uint8(c.A >> 8)
+						dstImg.Pix[offset+7] = uint8(c.A & 0xFF)
+					}
 				}
-			}
+			})
+
 		} else {
-			for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+			parallel.Run(parallelism, func(workerNum int) {
+				for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+					for j := bounds.Min.X; j < bounds.Max.X; j++ {
+						c := transformColor(src.At(j, i))
+
+						offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
+						dstImg.Pix[offset] = uint8(c.R >> 8)
+						dstImg.Pix[offset+1] = uint8(c.R & 0xFF)
+						dstImg.Pix[offset+2] = uint8(c.G >> 8)
+						dstImg.Pix[offset+3] = uint8(c.G & 0xFF)
+						dstImg.Pix[offset+4] = uint8(c.B >> 8)
+						dstImg.Pix[offset+5] = uint8(c.B & 0xFF)
+						dstImg.Pix[offset+6] = uint8(c.A >> 8)
+						dstImg.Pix[offset+7] = uint8(c.A & 0xFF)
+					}
+				}
+			})
+		}
+
+	case *image.RGBA:
+		parallel.Run(parallelism, func(workerNum int) {
+			for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
 				for j := bounds.Min.X; j < bounds.Max.X; j++ {
 					c := transformColor(src.At(j, i))
 
 					offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
 					dstImg.Pix[offset] = uint8(c.R >> 8)
-					dstImg.Pix[offset+1] = uint8(c.R & 0xFF)
-					dstImg.Pix[offset+2] = uint8(c.G >> 8)
-					dstImg.Pix[offset+3] = uint8(c.G & 0xFF)
-					dstImg.Pix[offset+4] = uint8(c.B >> 8)
-					dstImg.Pix[offset+5] = uint8(c.B & 0xFF)
-					dstImg.Pix[offset+6] = uint8(c.A >> 8)
-					dstImg.Pix[offset+7] = uint8(c.A & 0xFF)
+					dstImg.Pix[offset+1] = uint8(c.G >> 8)
+					dstImg.Pix[offset+2] = uint8(c.B >> 8)
+					dstImg.Pix[offset+3] = uint8(c.A >> 8)
 				}
 			}
-		}
-
-	case *image.RGBA:
-		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-			for j := bounds.Min.X; j < bounds.Max.X; j++ {
-				c := transformColor(src.At(j, i))
-
-				offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
-				dstImg.Pix[offset] = uint8(c.R >> 8)
-				dstImg.Pix[offset+1] = uint8(c.G >> 8)
-				dstImg.Pix[offset+2] = uint8(c.B >> 8)
-				dstImg.Pix[offset+3] = uint8(c.A >> 8)
-			}
-		}
+		})
 
 	default:
-		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
-			for j := bounds.Min.X; j < bounds.Max.X; j++ {
-				dst.Set(j+dstOffsetX, i+dstOffsetY, transformColor(src.At(j, i)))
+		parallel.Run(parallelism, func(workerNum int) {
+			for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+				for j := bounds.Min.X; j < bounds.Max.X; j++ {
+					dst.Set(j+dstOffsetX, i+dstOffsetY, transformColor(src.At(j, i)))
+				}
 			}
-		}
+		})
 	}
 }

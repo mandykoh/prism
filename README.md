@@ -120,20 +120,20 @@ If no profile exists, `nil` is returned without an error.
 An image can be easily converted from its colour space encoding (eg sRGB) to a linear encoding. Because this operation can be lossy in 8-bit colour depths, it’s a good idea to first convert images to 16-bit colour (eg instances of `image.NRGBA64` or `image.RGBA64`). `prism` provides utility functions for such conversions:
 
 ```go
-img = prism.ConvertImageToRGBA64(img)
+img = prism.ConvertImageToRGBA64(img, parallelism)
 ```
 
 Then the image can be linearised (here, using itself as both source and destination):
 
 ```go
-srgb.LineariseImage(img, img)
+srgb.LineariseImage(img, img, parallelism)
 ```
 
 Alternatively a new blank 16-bit image can be created and the original image linearised into it:
 
 ```go
 linearisedImg := image.NewRGBA64(img.Bounds())
-srgb.LineariseImage(linearisedImg, img)
+srgb.LineariseImage(linearisedImg, img, parallelism)
 ``` 
 
 The image can then be passed to operations that expect an `image.Image` but assume linear colour. Here we pass it to the `BiLinear` rescaler to reduce the image to half its original size, which will now produce a correct result in linear space:
@@ -147,7 +147,7 @@ Note that the output is still linearised, so before writing the image to an outp
 
 ```go
 encodedImg := image.NewRGBA(resampled.Bounds())
-srgb.EncodeImage(encodedImg, resampled)
+srgb.EncodeImage(encodedImg, resampled, parallelism)
 ```
 
 

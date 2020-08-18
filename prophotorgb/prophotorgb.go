@@ -30,8 +30,11 @@ func EncodeColor(c color.Color) color.RGBA64 {
 // dst is the image to write the result to, beginning at its origin.
 //
 // src and dst may be the same image.
-func EncodeImage(dst draw.Image, src image.Image) {
-	linear.TransformImageColor(dst, src, EncodeColor)
+//
+// parallelism specifies the degree of parallel processing; a value of 4
+// indicates that processing will be spread across four threads.
+func EncodeImage(dst draw.Image, src image.Image, parallelism int) {
+	linear.TransformImageColor(dst, src, parallelism, EncodeColor)
 }
 
 func encodedToLinear(v float32) float32 {
@@ -55,8 +58,11 @@ func LineariseColor(c color.Color) color.RGBA64 {
 // dst is the image to write the result to, beginning at its origin.
 //
 // src and dst may be the same image.
-func LineariseImage(dst draw.Image, src image.Image) {
-	linear.TransformImageColor(dst, src, LineariseColor)
+//
+// parallelism specifies the degree of parallel processing; a value of 4
+// indicates that processing will be spread across four threads.
+func LineariseImage(dst draw.Image, src image.Image, parallelism int) {
+	linear.TransformImageColor(dst, src, parallelism, LineariseColor)
 }
 
 func linearToEncoded(v float32) float32 {

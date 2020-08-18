@@ -11,6 +11,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
+	"runtime"
 	"testing"
 )
 
@@ -46,10 +47,10 @@ func BenchmarkColorConversion(b *testing.B) {
 		b.Run("from 8-bit to 16-bit and back", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				linearImg := image.NewRGBA64(rgbaImg.Rect)
-				adobergb.LineariseImage(linearImg, rgbaImg)
+				adobergb.LineariseImage(linearImg, rgbaImg, runtime.NumCPU())
 
 				encodedImg := image.NewRGBA(linearImg.Rect)
-				adobergb.EncodeImage(encodedImg, linearImg)
+				adobergb.EncodeImage(encodedImg, linearImg, runtime.NumCPU())
 			}
 		})
 	})
@@ -271,7 +272,7 @@ func BenchmarkColorConversion(b *testing.B) {
 
 		b.Run("NRGBA to NRGBA with ConvertImageToNRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToNRGBA(nrgbaImg)
+				_ = ConvertImageToNRGBA(nrgbaImg, runtime.NumCPU())
 			}
 		})
 
@@ -279,13 +280,13 @@ func BenchmarkColorConversion(b *testing.B) {
 			// RGBA to NRGBA is more correctly done via a colour space as tonal
 			// response encoding is applied on top of alpha premultiplication.
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToNRGBA(rgbaImg)
+				_ = ConvertImageToNRGBA(rgbaImg, runtime.NumCPU())
 			}
 		})
 
 		b.Run("YCbCr to NRGBA with ConvertImageToNRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToNRGBA(yCbCrImg)
+				_ = ConvertImageToNRGBA(yCbCrImg, runtime.NumCPU())
 			}
 		})
 
@@ -293,25 +294,25 @@ func BenchmarkColorConversion(b *testing.B) {
 			// RGBA to NRGBA is more correctly done via a colour space as tonal
 			// response encoding is applied on top of alpha premultiplication.
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA(nrgbaImg)
+				_ = ConvertImageToRGBA(nrgbaImg, runtime.NumCPU())
 			}
 		})
 
 		b.Run("RGBA64 to RGBA with ConvertImageToRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA(rgba64Img)
+				_ = ConvertImageToRGBA(rgba64Img, runtime.NumCPU())
 			}
 		})
 
 		b.Run("RGBA to RGBA with ConvertImageToRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA(rgbaImg)
+				_ = ConvertImageToRGBA(rgbaImg, runtime.NumCPU())
 			}
 		})
 
 		b.Run("YCbCr to RGBA with ConvertImageToRGBA()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA(yCbCrImg)
+				_ = ConvertImageToRGBA(yCbCrImg, runtime.NumCPU())
 			}
 		})
 
@@ -319,25 +320,25 @@ func BenchmarkColorConversion(b *testing.B) {
 			// RGBA to NRGBA is more correctly done via a colour space as tonal
 			// response encoding is applied on top of alpha premultiplication.
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA64(nrgbaImg)
+				_ = ConvertImageToRGBA64(nrgbaImg, runtime.NumCPU())
 			}
 		})
 
 		b.Run("RGBA64 to RGBA64 with ConvertImageToRGBA64()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA64(rgba64Img)
+				_ = ConvertImageToRGBA64(rgba64Img, runtime.NumCPU())
 			}
 		})
 
 		b.Run("RGBA to RGBA64 with ConvertImageToRGBA64()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA64(rgbaImg)
+				_ = ConvertImageToRGBA64(rgbaImg, runtime.NumCPU())
 			}
 		})
 
 		b.Run("YCbCr to RGBA64 with ConvertImageToRGBA64()", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = ConvertImageToRGBA64(yCbCrImg)
+				_ = ConvertImageToRGBA64(yCbCrImg, runtime.NumCPU())
 			}
 		})
 	})
