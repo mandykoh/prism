@@ -16,36 +16,6 @@ var StandardWhitePoint = ciexyy.D50
 
 const constantE = 1.0 / 512.0
 
-// ConvertLinearTo8Bit converts a linear value to an 8-bit Pro Photo RGB encoded
-// value, clipping the linear value to between 0.0 and 1.0.
-//
-// This implementation uses an exact analytical method. If performance is
-// critical, see To8Bit.
-func ConvertLinearTo8Bit(v float32) uint8 {
-	return uint8(math.Round(linearToEncoded(float64(v)) * 255))
-}
-
-// ConvertLinearTo16Bit converts a linear value to a 16-bit Pro Photo RGB
-// encoded value, clipping the linear value to between 0.0 and 1.0.
-func ConvertLinearTo16Bit(v float32) uint16 {
-	return uint16(math.Round(linearToEncoded(float64(v)) * 65535))
-}
-
-// Convert8BitToLinear converts an 8-bit Pro Photo RGB encoded value to a
-// normalised linear value between 0.0 and 1.0.
-//
-// This implementation uses an exact analytical method. If performance is
-// critical, see From8Bit.
-func Convert8BitToLinear(v uint8) float32 {
-	return float32(encodedToLinear(float64(v) / 255))
-}
-
-// Convert16BitToLinear converts a 16-bit Pro Photo RGB encoded value to a
-// normalised linear value between 0.0 and 1.0.
-func Convert16BitToLinear(v uint16) float32 {
-	return float32(encodedToLinear(float64(v) / 65535))
-}
-
 // EncodeColor converts a linear colour value to a Pro Photo RGB encoded one.
 func EncodeColor(c color.Color) color.RGBA64 {
 	col, alpha := ColorFromLinearColor(c)
@@ -64,11 +34,11 @@ func EncodeImage(dst draw.Image, src image.Image) {
 	linear.TransformImageColor(dst, src, EncodeColor)
 }
 
-func encodedToLinear(v float64) float64 {
+func encodedToLinear(v float32) float32 {
 	if v < constantE*16 {
 		return v / 16
 	}
-	return math.Pow(v, 1.8)
+	return float32(math.Pow(float64(v), 1.8))
 }
 
 // LineariseColor converts a Pro Photo RGB encoded colour into a linear one.
@@ -89,17 +59,14 @@ func LineariseImage(dst draw.Image, src image.Image) {
 	linear.TransformImageColor(dst, src, LineariseColor)
 }
 
-func linearToEncoded(v float64) float64 {
-	var scaled float64
+func linearToEncoded(v float32) float32 {
 	if v < 0 {
-		scaled = 0
+		return 0
 	} else if v < constantE {
-		scaled = 16 * v
+		return 16 * v
 	} else if v < 1 {
-		scaled = math.Pow(v, 1.0/1.8)
-	} else {
-		scaled = 1
+		return float32(math.Pow(float64(v), 1.0/1.8))
 	}
 
-	return scaled
+	return 1
 }

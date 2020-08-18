@@ -9,7 +9,7 @@
 `prism` currently implements:
 
 * Encoding/decoding linear colour from sRGB, Adobe RGB, Pro Photo RGB, and Display P3 encodings
-* Optional fast LUT-based conversion
+* Fast LUT-based tonal response encoding/decoding
 * Conversion to and from CIE xyY, CIE XYZ, and CIE Lab
 * Chromatic adaptation in XYZ space between different white points
 * Extracting metadata (including ICC profile) from PNG and JPEG files

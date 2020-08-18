@@ -10,12 +10,20 @@ var init8BitLUTsOnce sync.Once
 var linearToEncoded8LUT []uint8
 var encoded8ToLinearLUT []float32
 
-var init16BitLUTsOnce sync.Once
+var initTo16BitLUTOnce sync.Once
 var linearToEncoded16LUT []uint16
+
+var initFrom16BitLUTOnce sync.Once
 var encoded16ToLinearLUT []float32
 
 func init() {
-	init8BitLUTs()
+	init8BitLUTsOnce.Do(func() {
+		to8BitLUT := lut.BuildLinearTo8Bit(linearToEncoded)
+		linearToEncoded8LUT = to8BitLUT[:]
+
+		from8BitLUT := lut.Build8BitToLinear(encodedToLinear)
+		encoded8ToLinearLUT = from8BitLUT[:]
+	})
 }
 
 // From8Bit converts an 8-bit Adobe RGB encoded value to a normalised linear
@@ -31,28 +39,18 @@ func From8Bit(v uint8) float32 {
 //
 // This implementation uses a fast look-up table without sacrificing accuracy.
 func From16Bit(v uint16) float32 {
-	init16BitLUTs()
-	return encoded16ToLinearLUT[v]
+	if encoded16ToLinearLUT != nil {
+		return encoded16ToLinearLUT[v]
+	}
+	return from16BitAndInitLUT(v)
 }
 
-func init8BitLUTs() {
-	init8BitLUTsOnce.Do(func() {
-		to8BitLUT := lut.BuildLinearTo8Bit(ConvertLinearTo8Bit)
-		linearToEncoded8LUT = to8BitLUT[:]
-
-		from8BitLUT := lut.Build8BitToLinear(Convert8BitToLinear)
-		encoded8ToLinearLUT = from8BitLUT[:]
-	})
-}
-
-func init16BitLUTs() {
-	init16BitLUTsOnce.Do(func() {
-		to16BitLUT := lut.BuildLinearTo16Bit(ConvertLinearTo16Bit)
-		linearToEncoded16LUT = to16BitLUT[:]
-
-		from16BitLUT := lut.Build16BitToLinear(Convert16BitToLinear)
+func from16BitAndInitLUT(v uint16) float32 {
+	initFrom16BitLUTOnce.Do(func() {
+		from16BitLUT := lut.Build16BitToLinear(encodedToLinear)
 		encoded16ToLinearLUT = from16BitLUT[:]
 	})
+	return encoded16ToLinearLUT[v]
 }
 
 // To8Bit converts a linear value to an 8-bit Adobe RGB encoded value, clipping
@@ -70,6 +68,16 @@ func To8Bit(v float32) uint8 {
 // This implementation uses a fast look-up table and is approximate. For more
 // accuracy, see ConvertLinearTo16Bit.
 func To16Bit(v float32) uint16 {
-	init16BitLUTs()
+	if linearToEncoded16LUT != nil {
+		return linearToEncoded16LUT[linear.NormalisedTo16Bit(v)]
+	}
+	return to16BitAndInitLUT(v)
+}
+
+func to16BitAndInitLUT(v float32) uint16 {
+	initTo16BitLUTOnce.Do(func() {
+		to16BitLUT := lut.BuildLinearTo16Bit(linearToEncoded)
+		linearToEncoded16LUT = to16BitLUT[:]
+	})
 	return linearToEncoded16LUT[linear.NormalisedTo16Bit(v)]
 }
