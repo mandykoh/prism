@@ -32,7 +32,8 @@ func NormalisedTo9Bit(v float32) uint16 {
 func NormalisedTo16Bit(v float32) uint16 {
 	if v <= 0 {
 		return 0
-	} else if v >= 1 {
+	}
+	if v >= 1 {
 		return 65535
 	}
 	return uint16(v*65535 + 0.5)
