@@ -52,9 +52,12 @@ func ConvertImageToRGBA(img image.Image) *image.RGBA {
 
 		for i := outputImg.Rect.Min.Y; i < outputImg.Rect.Max.Y; i++ {
 			for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
-				c := inputImg.RGBA64At(j, i)
-				rgba := color.RGBA{R: uint8(c.R >> 8), G: uint8(c.G >> 8), B: uint8(c.B >> 8), A: uint8(c.A >> 8)}
-				outputImg.SetRGBA(j, i, rgba)
+				inputOffset := inputImg.PixOffset(j, i)
+				outputOffset := outputImg.PixOffset(j, i)
+				outputImg.Pix[outputOffset] = inputImg.Pix[inputOffset]
+				outputImg.Pix[outputOffset+1] = inputImg.Pix[inputOffset+2]
+				outputImg.Pix[outputOffset+2] = inputImg.Pix[inputOffset+4]
+				outputImg.Pix[outputOffset+3] = inputImg.Pix[inputOffset+6]
 			}
 		}
 		return outputImg
@@ -89,9 +92,16 @@ func ConvertImageToRGBA64(img image.Image) *image.RGBA64 {
 
 		for i := outputImg.Rect.Min.Y; i < outputImg.Rect.Max.Y; i++ {
 			for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
-				r, g, b, a := inputImg.RGBAAt(j, i).RGBA()
-				rgba64 := color.RGBA64{R: uint16(r), G: uint16(g), B: uint16(b), A: uint16(a)}
-				outputImg.SetRGBA64(j, i, rgba64)
+				inputOffset := inputImg.PixOffset(j, i)
+				outputOffset := outputImg.PixOffset(j, i)
+				outputImg.Pix[outputOffset] = inputImg.Pix[inputOffset]
+				outputImg.Pix[outputOffset+1] = inputImg.Pix[inputOffset]
+				outputImg.Pix[outputOffset+2] = inputImg.Pix[inputOffset+1]
+				outputImg.Pix[outputOffset+3] = inputImg.Pix[inputOffset+1]
+				outputImg.Pix[outputOffset+4] = inputImg.Pix[inputOffset+2]
+				outputImg.Pix[outputOffset+5] = inputImg.Pix[inputOffset+2]
+				outputImg.Pix[outputOffset+6] = inputImg.Pix[inputOffset+3]
+				outputImg.Pix[outputOffset+7] = inputImg.Pix[inputOffset+3]
 			}
 		}
 		return outputImg
