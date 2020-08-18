@@ -54,14 +54,47 @@ func TransformImageColor(dst draw.Image, src image.Image, transformColor func(co
 		if srcImg, ok := src.(*image.RGBA64); ok {
 			for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
 				for j := bounds.Min.X; j < bounds.Max.X; j++ {
-					dstImg.SetRGBA64(j+dstOffsetX, i+dstOffsetY, transformColor(srcImg.RGBA64At(j, i)))
+					c := transformColor(srcImg.RGBA64At(j, i))
+
+					offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
+					dstImg.Pix[offset] = uint8(c.R >> 8)
+					dstImg.Pix[offset+1] = uint8(c.R & 0xFF)
+					dstImg.Pix[offset+2] = uint8(c.G >> 8)
+					dstImg.Pix[offset+3] = uint8(c.G & 0xFF)
+					dstImg.Pix[offset+4] = uint8(c.B >> 8)
+					dstImg.Pix[offset+5] = uint8(c.B & 0xFF)
+					dstImg.Pix[offset+6] = uint8(c.A >> 8)
+					dstImg.Pix[offset+7] = uint8(c.A & 0xFF)
 				}
 			}
 		} else {
 			for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
 				for j := bounds.Min.X; j < bounds.Max.X; j++ {
-					dstImg.SetRGBA64(j+dstOffsetX, i+dstOffsetY, transformColor(src.At(j, i)))
+					c := transformColor(src.At(j, i))
+
+					offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
+					dstImg.Pix[offset] = uint8(c.R >> 8)
+					dstImg.Pix[offset+1] = uint8(c.R & 0xFF)
+					dstImg.Pix[offset+2] = uint8(c.G >> 8)
+					dstImg.Pix[offset+3] = uint8(c.G & 0xFF)
+					dstImg.Pix[offset+4] = uint8(c.B >> 8)
+					dstImg.Pix[offset+5] = uint8(c.B & 0xFF)
+					dstImg.Pix[offset+6] = uint8(c.A >> 8)
+					dstImg.Pix[offset+7] = uint8(c.A & 0xFF)
 				}
+			}
+		}
+
+	case *image.RGBA:
+		for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+			for j := bounds.Min.X; j < bounds.Max.X; j++ {
+				c := transformColor(src.At(j, i))
+
+				offset := dstImg.PixOffset(j+dstOffsetX, i+dstOffsetY)
+				dstImg.Pix[offset] = uint8(c.R >> 8)
+				dstImg.Pix[offset+1] = uint8(c.G >> 8)
+				dstImg.Pix[offset+2] = uint8(c.B >> 8)
+				dstImg.Pix[offset+3] = uint8(c.A >> 8)
 			}
 		}
 
