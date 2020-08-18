@@ -1,7 +1,7 @@
 package linear
 
 import (
-	"github.com/mandykoh/prism/parallel"
+	"github.com/mandykoh/go-parallel"
 	"image"
 	"image/color"
 	"image/draw"
@@ -57,8 +57,8 @@ func TransformImageColor(dst draw.Image, src image.Image, parallelism int, trans
 	case *image.RGBA64:
 		if srcImg, ok := src.(*image.RGBA64); ok {
 
-			parallel.Run(parallelism, func(workerNum int) {
-				for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+			parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+				for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += workerCount {
 					for j := bounds.Min.X; j < bounds.Max.X; j++ {
 						c := transformColor(srcImg.RGBA64At(j, i))
 
@@ -76,8 +76,8 @@ func TransformImageColor(dst draw.Image, src image.Image, parallelism int, trans
 			})
 
 		} else {
-			parallel.Run(parallelism, func(workerNum int) {
-				for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+			parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+				for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += workerCount {
 					for j := bounds.Min.X; j < bounds.Max.X; j++ {
 						c := transformColor(src.At(j, i))
 
@@ -96,8 +96,8 @@ func TransformImageColor(dst draw.Image, src image.Image, parallelism int, trans
 		}
 
 	case *image.RGBA:
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += workerCount {
 				for j := bounds.Min.X; j < bounds.Max.X; j++ {
 					c := transformColor(src.At(j, i))
 
@@ -111,8 +111,8 @@ func TransformImageColor(dst draw.Image, src image.Image, parallelism int, trans
 		})
 
 	default:
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := bounds.Min.Y + workerNum; i < bounds.Max.Y; i += workerCount {
 				for j := bounds.Min.X; j < bounds.Max.X; j++ {
 					dst.Set(j+dstOffsetX, i+dstOffsetY, transformColor(src.At(j, i)))
 				}

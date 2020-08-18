@@ -4,7 +4,7 @@
 package prism
 
 import (
-	"github.com/mandykoh/prism/parallel"
+	"github.com/mandykoh/go-parallel"
 	"image"
 	"image/color"
 	"image/draw"
@@ -26,8 +26,8 @@ func ConvertImageToNRGBA(img image.Image, parallelism int) *image.NRGBA {
 	case *image.YCbCr:
 		outputImg := image.NewNRGBA(inputImg.Rect)
 
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += workerCount {
 				for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
 					c := inputImg.YCbCrAt(j, i)
 					r, g, b := color.YCbCrToRGB(c.Y, c.Cb, c.Cr)
@@ -62,8 +62,8 @@ func ConvertImageToRGBA(img image.Image, parallelism int) *image.RGBA {
 	case *image.RGBA64:
 		outputImg := image.NewRGBA(inputImg.Rect)
 
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += workerCount {
 				for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
 					inputOffset := inputImg.PixOffset(j, i)
 					outputOffset := outputImg.PixOffset(j, i)
@@ -97,8 +97,8 @@ func ConvertImageToRGBA64(img image.Image, parallelism int) *image.RGBA64 {
 	case *image.NRGBA:
 		outputImg := image.NewRGBA64(inputImg.Rect)
 
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += workerCount {
 				for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
 					r, g, b, a := inputImg.NRGBAAt(j, i).RGBA()
 					rgba64 := color.RGBA64{R: uint16(r), G: uint16(g), B: uint16(b), A: uint16(a)}
@@ -111,8 +111,8 @@ func ConvertImageToRGBA64(img image.Image, parallelism int) *image.RGBA64 {
 	case *image.RGBA:
 		outputImg := image.NewRGBA64(inputImg.Rect)
 
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += workerCount {
 				for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
 					inputOffset := inputImg.PixOffset(j, i)
 					outputOffset := outputImg.PixOffset(j, i)
@@ -136,8 +136,8 @@ func ConvertImageToRGBA64(img image.Image, parallelism int) *image.RGBA64 {
 	case *image.YCbCr:
 		outputImg := image.NewRGBA64(inputImg.Rect)
 
-		parallel.Run(parallelism, func(workerNum int) {
-			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += parallelism {
+		parallel.RunWorkers(parallelism, func(workerNum, workerCount int) {
+			for i := outputImg.Rect.Min.Y + workerNum; i < outputImg.Rect.Max.Y; i += workerCount {
 				for j := outputImg.Rect.Min.X; j < outputImg.Rect.Max.X; j++ {
 					r, g, b, _ := inputImg.YCbCrAt(j, i).RGBA()
 					rgba64 := color.RGBA64{R: uint16(r), G: uint16(g), B: uint16(b), A: 65535}
