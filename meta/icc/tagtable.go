@@ -1,7 +1,9 @@
 package icc
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/mandykoh/prism/meta/binary"
 )
 
 type TagTable struct {
@@ -12,19 +14,24 @@ func (t *TagTable) add(sig Signature, data []byte) {
 	t.entries[sig] = data
 }
 
-func (t *TagTable) getProfileDescription(ver Version) (string, error) {
+func (t *TagTable) getProfileDescription() (string, error) {
 	data := t.entries[DescSignature]
 
-	switch ver.Major {
+	sig, err := binary.ReadU32Big(bytes.NewReader(data))
+	if err != nil {
+		return "", err
+	}
 
-	case 2:
+	switch Signature(sig) {
+
+	case DescSignature:
 		desc, err := parseTextDescription(data)
 		if err != nil {
 			return "", err
 		}
 		return desc.ASCII, nil
 
-	case 4:
+	case MultiLocalisedUnicodeSignature:
 		mluc, err := parseMultiLocalisedUnicode(data)
 		if err != nil {
 			return "", err
@@ -35,7 +42,7 @@ func (t *TagTable) getProfileDescription(ver Version) (string, error) {
 		return mluc.getAnyString(), nil
 
 	default:
-		return "", fmt.Errorf("unknown profile major version (%d)", ver.Major)
+		return "", fmt.Errorf("unknown profile description type (%v)", Signature(sig))
 	}
 }
 
