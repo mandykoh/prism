@@ -61,7 +61,7 @@ func parseMultiLocalisedUnicode(data []byte) (MultiLocalisedUnicode, error) {
 		return result, err
 	}
 	if s := Signature(sig); s != MultiLocalisedUnicodeSignature {
-		return result, fmt.Errorf("expected %v but got %v", DescSignature, s)
+		return result, fmt.Errorf("expected %v but got %v", MultiLocalisedUnicodeSignature, s)
 	}
 
 	// Reserved field

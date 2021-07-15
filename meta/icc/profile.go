@@ -6,7 +6,7 @@ type Profile struct {
 }
 
 func (p *Profile) Description() (string, error) {
-	return p.TagTable.getProfileDescription(p.Header.Version)
+	return p.TagTable.getProfileDescription()
 }
 
 func newProfile() *Profile {

@@ -1,10 +1,14 @@
 package icc
 
 import (
+	"bufio"
 	"bytes"
+	"fmt"
 	"github.com/mandykoh/prism/meta/binary"
 	"io"
 	"math/rand"
+	"os"
+	"path"
 	"testing"
 )
 
@@ -12,6 +16,18 @@ func TestProfileReader(t *testing.T) {
 	var profileSize uint32
 	var profileID [16]byte
 	var reservedBytes [28]byte
+
+	loadTestProfile := func(profileFileName string) (*Profile, error) {
+		profileFile, err := os.Open(path.Join("../../test-profiles", profileFileName))
+		if err != nil {
+			return nil, fmt.Errorf("error opening '%s': %w", profileFileName, err)
+		}
+
+		defer profileFile.Close()
+
+		reader := NewProfileReader(bufio.NewReader(profileFile))
+		return reader.ReadProfile()
+	}
 
 	writeHeader := func(w io.Writer, profileSig [4]byte) {
 		profileSize = uint32(rand.Int31())
@@ -125,6 +141,33 @@ func TestProfileReader(t *testing.T) {
 				t.Errorf("Expected error but operation succeeded")
 			} else if expected, actual := "EOF", err.Error(); expected != actual {
 				t.Errorf("Expected error '%s' but got '%s'", expected, actual)
+			}
+		})
+
+		t.Run("successfully reads profile descriptions", func(t *testing.T) {
+			cases := []struct {
+				ProfileFileName     string
+				ExpectedDescription string
+			}{
+				{ProfileFileName: "display-p3-v4-with-v2-desc.icc", ExpectedDescription: "Display P3"},
+			}
+
+			for _, c := range cases {
+				profile, err := loadTestProfile(c.ProfileFileName)
+				if err != nil {
+					t.Errorf("Error reading profile '%s', %v", c.ProfileFileName, err)
+					continue
+				}
+
+				desc, err := profile.Description()
+				if err != nil {
+					t.Errorf("Error reading profile description from '%s': %v", c.ProfileFileName, err)
+					continue
+				}
+
+				if desc != c.ExpectedDescription {
+					t.Errorf("Expected description '%s' for profile '%s' but got '%s'", c.ExpectedDescription, c.ProfileFileName, desc)
+				}
 			}
 		})
 	})
