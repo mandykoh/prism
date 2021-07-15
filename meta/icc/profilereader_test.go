@@ -2,10 +2,11 @@ package icc
 
 import (
 	"bytes"
-	"github.com/mandykoh/prism/meta/binary"
 	"io"
 	"math/rand"
 	"testing"
+
+	"github.com/mandykoh/prism/meta/binary"
 )
 
 func TestProfileReader(t *testing.T) {
@@ -96,8 +97,9 @@ func TestProfileReader(t *testing.T) {
 		t.Run("returns an error when header parsing fails", func(t *testing.T) {
 			profileData := &bytes.Buffer{}
 			writeHeader(profileData, [4]byte{'b', 'a', 'd', '!'})
+			testKey := [4]byte{'t', 'e', 's', 't'}
 			writeTagTable(profileData, map[[4]byte][]byte{
-				[4]byte{'t', 'e', 's', 't'}: {},
+				testKey: {},
 			})
 
 			reader := NewProfileReader(profileData)

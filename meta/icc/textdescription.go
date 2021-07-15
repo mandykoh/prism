@@ -3,6 +3,8 @@ package icc
 import (
 	"bytes"
 	"fmt"
+	"io"
+
 	"github.com/mandykoh/prism/meta/binary"
 )
 
@@ -11,10 +13,9 @@ type TextDescription struct {
 }
 
 func parseTextDescription(data []byte) (TextDescription, error) {
-	desc := TextDescription{}
-
 	reader := bytes.NewReader(data)
 
+	desc := TextDescription{}
 	sig, err := binary.ReadU32Big(reader)
 	if err != nil {
 		return desc, err
@@ -23,8 +24,14 @@ func parseTextDescription(data []byte) (TextDescription, error) {
 		return desc, fmt.Errorf("expected %v but got %v", DescSignature, s)
 	}
 
+	return parseTextDescriptionFromReader(reader)
+}
+
+func parseTextDescriptionFromReader(reader io.ByteReader) (TextDescription, error) {
+	desc := TextDescription{}
+
 	// Reserved field
-	_, err = binary.ReadU32Big(reader)
+	_, err := binary.ReadU32Big(reader)
 	if err != nil {
 		return desc, err
 	}

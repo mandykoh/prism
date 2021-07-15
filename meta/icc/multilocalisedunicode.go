@@ -3,8 +3,9 @@ package icc
 import (
 	"bytes"
 	"fmt"
-	"github.com/mandykoh/prism/meta/binary"
 	"unicode/utf16"
+
+	"github.com/mandykoh/prism/meta/binary"
 )
 
 type MultiLocalisedUnicode struct {
@@ -56,12 +57,45 @@ func parseMultiLocalisedUnicode(data []byte) (MultiLocalisedUnicode, error) {
 
 	reader := bytes.NewReader(data)
 
+	// Parse the signature field:
 	sig, err := binary.ReadU32Big(reader)
 	if err != nil {
 		return result, err
 	}
-	if s := Signature(sig); s != MultiLocalisedUnicodeSignature {
-		return result, fmt.Errorf("expected %v but got %v", DescSignature, s)
+	s := Signature(sig)
+
+	// Some v4 profiles provide backwards compatibility for v2 readers by adding a v2 ASCII signature.
+	// Per the spec, we should map this from ASCII to an en-US localized UTF-16 string.
+	var hasDescSignature = false
+	if s == DescSignature {
+		hasDescSignature = true
+
+		// Parse the v2 text description:
+		desc, err := parseTextDescriptionFromReader(reader)
+		if err != nil {
+			return result, err
+		}
+
+		language := [2]byte{'e', 'n'}
+		country := [2]byte{'u', 's'}
+		result.setString(language, country, desc.ASCII)
+
+		// Parse the next signature field:
+		sig, err = binary.ReadU32Big(reader)
+		if err != nil {
+			return result, err
+		}
+		s = Signature(sig)
+	}
+
+	// If this is not a multi-localized unicode signature, return an error.
+	if s != MultiLocalisedUnicodeSignature {
+		if hasDescSignature {
+			// If we had a desc signature just return that since it's our only tag.
+			return result, nil
+		}
+
+		return result, fmt.Errorf("expected %v but got %v", MultiLocalisedUnicodeSignature, s)
 	}
 
 	// Reserved field
@@ -134,13 +168,4 @@ func parseMultiLocalisedUnicode(data []byte) (MultiLocalisedUnicode, error) {
 	}
 
 	return result, nil
-}
-
-type languageCountry struct {
-	language [2]byte
-	country  [2]byte
-}
-
-func (lc languageCountry) String() string {
-	return fmt.Sprintf("%c%c_%c%c", lc.language[0], lc.language[1], lc.country[0], lc.country[1])
 }
