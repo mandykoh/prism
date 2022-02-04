@@ -37,5 +37,5 @@ func Load(r io.Reader) (md *meta.Data, imgStream io.Reader, err error) {
 		inputStream = nextStream
 	}
 
-	return nil, imgStream, fmt.Errorf("unrecognised image format")
+	return nil, inputStream, fmt.Errorf("unrecognised image format")
 }
