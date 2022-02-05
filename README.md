@@ -12,7 +12,7 @@
 * Fast LUT-based tonal response encoding/decoding
 * Conversion to and from CIE xyY, CIE XYZ, and CIE Lab
 * Chromatic adaptation in XYZ space between different white points
-* Extracting metadata (including ICC profile) from PNG and JPEG files
+* Extracting metadata (including ICC profile) from PNG, JPEG, and WebP files
 
 Still missing:
 
@@ -134,7 +134,7 @@ Alternatively a new blank 16-bit image can be created and the original image lin
 ```go
 linearisedImg := image.NewRGBA64(img.Bounds())
 srgb.LineariseImage(linearisedImg, img, parallelism)
-``` 
+```
 
 The image can then be passed to operations that expect an `image.Image` but assume linear colour. Here we pass it to the `BiLinear` rescaler to reduce the image to half its original size, which will now produce a correct result in linear space:
 
@@ -162,7 +162,7 @@ c := inputImg.NRGBAAt(x, y)                 // Take input colour value
 ac, alpha := adobergb.ColorFromNRGBA(c)     // Interpret image pixel as Adobe RGB and convert to linear representation
 sc := srgb.ColorFromXYZ(ac.ToXYZ())         // Convert to XYZ, then from XYZ to sRGB linear representation
 outputImg.SetNRGBA(x, y, sc.ToNRGBA(alpha)) // Write sRGB-encoded value to output image
-``` 
+```
 
 
 ### Chromatic adaptation
