@@ -2,12 +2,14 @@ package autometa_test
 
 import (
 	"fmt"
-	"github.com/mandykoh/prism/meta"
-	"github.com/mandykoh/prism/meta/autometa"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"os"
+
+	"github.com/mandykoh/prism/meta"
+	"github.com/mandykoh/prism/meta/autometa"
+	"golang.org/x/image/webp"
 )
 
 func printMetadata(md *meta.Data, img image.Image) {
@@ -69,6 +71,34 @@ func ExampleLoad_basicPNGMetadata() {
 
 	// Output:
 	// Format: PNG
+	// BitsPerComponent: 8
+	// PixelHeight: 1200
+	// PixelWidth: 1200
+	// Actual image height: 1200
+	// Actual image width: 1200
+}
+
+func ExampleLoad_basicWebPMetadata() {
+	inFile, err := os.Open("../../test-images/pizza-rgb8-displayp3-vp8x.webp")
+	if err != nil {
+		panic(err)
+	}
+	defer inFile.Close()
+
+	md, imgStream, err := autometa.Load(inFile)
+	if err != nil {
+		panic(err)
+	}
+
+	img, err := webp.Decode(imgStream)
+	if err != nil {
+		panic(err)
+	}
+
+	printMetadata(md, img)
+
+	// Output:
+	// Format: WebP
 	// BitsPerComponent: 8
 	// PixelHeight: 1200
 	// PixelWidth: 1200
