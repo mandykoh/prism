@@ -2,10 +2,12 @@ package autometa
 
 import (
 	"fmt"
+	"io"
+
 	"github.com/mandykoh/prism/meta"
 	"github.com/mandykoh/prism/meta/jpegmeta"
 	"github.com/mandykoh/prism/meta/pngmeta"
-	"io"
+	"github.com/mandykoh/prism/meta/webpmeta"
 )
 
 // Load loads the metadata for an image stream, which may be one of the
@@ -24,6 +26,7 @@ func Load(r io.Reader) (md *meta.Data, imgStream io.Reader, err error) {
 	loaders := []func(r io.Reader) (*meta.Data, io.Reader, error){
 		pngmeta.Load,
 		jpegmeta.Load,
+		webpmeta.Load,
 	}
 
 	inputStream := r
