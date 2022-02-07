@@ -24,15 +24,15 @@ func componentToLAB(v float32, wp float32) float64 {
 	return (constantK*r + 16) / 116.0
 }
 
-// TransformFromXYZForPrimaries generates the column matrix for converting
+// TransformFromXYZForXYYPrimaries generates the column matrix for converting
 // colour values from CIE XYZ to a space defined by three RGB primary
 // chromaticities and a reference white.
 func TransformFromXYZForXYYPrimaries(r, g, b ciexyy.Color, whitePoint ciexyy.Color) matrix.Matrix3 {
 	return TransformToXYZForXYYPrimaries(r, g, b, whitePoint).Inverse()
 }
 
-// TransformToXYZForXYYPrimaries generates the column matrix for converting colour
-// values from a space defined by three primary RGB chromaticities and a
+// TransformToXYZForXYYPrimaries generates the column matrix for converting
+// colour values from a space defined by three primary RGB chromaticities and a
 // reference white to CIE XYZ.
 func TransformToXYZForXYYPrimaries(r, g, b ciexyy.Color, whitePoint ciexyy.Color) matrix.Matrix3 {
 	m := matrix.Matrix3{
