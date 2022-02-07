@@ -16,14 +16,14 @@ func ExampleTransformFromXYZForXYYPrimaries_generateAdobeRGBMatrix() {
 		adobergb.PrimaryBlue,
 		adobergb.StandardWhitePoint)
 
-	fmt.Printf("R = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][0], transform[1][0], transform[2][0])
-	fmt.Printf("G = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][1], transform[1][1], transform[2][1])
-	fmt.Printf("B = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][2], transform[1][2], transform[2][2])
+	fmt.Printf("R = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("G = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("B = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][2], transform[1][2], transform[2][2])
 
 	// Output:
-	// R = c.X*2.0415913017647322 + c.Y*-0.5650078698012716 + c.Z*-0.34473195659062167
-	// G = c.X*-0.9692242864995342 + c.Y*1.8759299885141114 + c.Z*0.04155424903337176
-	// B = c.X*0.013446472278330708 + c.Y*-0.11838142234726094 + c.Z*1.01533754937275
+	// R = c.X*2.041591 + c.Y*-0.565008 + c.Z*-0.344732
+	// G = c.X*-0.969224 + c.Y*1.875930 + c.Z*0.041554
+	// B = c.X*0.013446 + c.Y*-0.118381 + c.Z*1.015338
 }
 
 func ExampleTransformToXYZForXYYPrimaries_generateAdobeRGBMatrix() {
@@ -33,14 +33,14 @@ func ExampleTransformToXYZForXYYPrimaries_generateAdobeRGBMatrix() {
 		adobergb.PrimaryBlue,
 		adobergb.StandardWhitePoint)
 
-	fmt.Printf("X = c.R*%v + c.G*%v + c.B*%v\n", transform[0][0], transform[1][0], transform[2][0])
-	fmt.Printf("Y = c.R*%v + c.G*%v + c.B*%v\n", transform[0][1], transform[1][1], transform[2][1])
-	fmt.Printf("Z = c.R*%v + c.G*%v + c.B*%v\n", transform[0][2], transform[1][2], transform[2][2])
+	fmt.Printf("X = c.R*%f + c.G*%f + c.B*%f\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("Y = c.R*%f + c.G*%f + c.B*%f\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("Z = c.R*%f + c.G*%f + c.B*%f\n", transform[0][2], transform[1][2], transform[2][2])
 
 	// Output:
-	// X = c.R*0.5766680793281725 + c.G*0.1855619421659935 + c.B*0.18819852398084014
-	// Y = c.R*0.29734448781899253 + c.G*0.6273761097678748 + c.B*0.07527940241313279
-	// Z = c.R*0.027031317880049893 + c.G*0.07069030664147563 + c.B*0.9911788223702592
+	// X = c.R*0.576668 + c.G*0.185562 + c.B*0.188199
+	// Y = c.R*0.297344 + c.G*0.627376 + c.B*0.075279
+	// Z = c.R*0.027031 + c.G*0.070690 + c.B*0.991179
 }
 
 func ExampleTransformFromXYZForXYYPrimaries_generateDisplayP3Matrix() {
@@ -50,14 +50,14 @@ func ExampleTransformFromXYZForXYYPrimaries_generateDisplayP3Matrix() {
 		displayp3.PrimaryBlue,
 		displayp3.StandardWhitePoint)
 
-	fmt.Printf("R = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][0], transform[1][0], transform[2][0])
-	fmt.Printf("G = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][1], transform[1][1], transform[2][1])
-	fmt.Printf("B = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][2], transform[1][2], transform[2][2])
+	fmt.Printf("R = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("G = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("B = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][2], transform[1][2], transform[2][2])
 
 	// Output:
-	// R = c.X*2.493509087331807 + c.Y*-0.931388074532663 + c.Z*-0.40271279318557973
-	// G = c.X*-0.8294731994547587 + c.Y*1.7626305488413623 + c.Z*0.0236242511428412
-	// B = c.X*0.03585127357050431 + c.Y*-0.07618395633732165 + c.Z*0.9570295296681479
+	// R = c.X*2.493509 + c.Y*-0.931388 + c.Z*-0.402713
+	// G = c.X*-0.829473 + c.Y*1.762631 + c.Z*0.023624
+	// B = c.X*0.035851 + c.Y*-0.076184 + c.Z*0.957030
 }
 
 func ExampleTransformToXYZForXYYPrimaries_generateDisplayP3Matrix() {
@@ -67,14 +67,14 @@ func ExampleTransformToXYZForXYYPrimaries_generateDisplayP3Matrix() {
 		displayp3.PrimaryBlue,
 		displayp3.StandardWhitePoint)
 
-	fmt.Printf("X = c.R*%v + c.G*%v + c.B*%v\n", transform[0][0], transform[1][0], transform[2][0])
-	fmt.Printf("Y = c.R*%v + c.G*%v + c.B*%v\n", transform[0][1], transform[1][1], transform[2][1])
-	fmt.Printf("Z = c.R*%v + c.G*%v + c.B*%v\n", transform[0][2], transform[1][2], transform[2][2])
+	fmt.Printf("X = c.R*%f + c.G*%f + c.B*%f\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("Y = c.R*%f + c.G*%f + c.B*%f\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("Z = c.R*%f + c.G*%f + c.B*%f\n", transform[0][2], transform[1][2], transform[2][2])
 
 	// Output:
-	// X = c.R*0.48656856264244125 + c.G*0.2656727168458704 + c.B*0.19818726598669462
-	// Y = c.R*0.22897344124350177 + c.G*0.6917516599220641 + c.B*0.07927489883443435
-	// Z = c.R*0 + c.G*0.04511425370425419 + c.B*1.0437861931875305
+	// X = c.R*0.486569 + c.G*0.265673 + c.B*0.198187
+	// Y = c.R*0.228973 + c.G*0.691752 + c.B*0.079275
+	// Z = c.R*0.000000 + c.G*0.045114 + c.B*1.043786
 }
 
 func ExampleTransformFromXYZForXYYPrimaries_generateSRGBMatrix() {
@@ -84,14 +84,14 @@ func ExampleTransformFromXYZForXYYPrimaries_generateSRGBMatrix() {
 		srgb.PrimaryBlue,
 		srgb.StandardWhitePoint)
 
-	fmt.Printf("R = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][0], transform[1][0], transform[2][0])
-	fmt.Printf("G = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][1], transform[1][1], transform[2][1])
-	fmt.Printf("B = c.X*%v + c.Y*%v + c.Z*%v\n", transform[0][2], transform[1][2], transform[2][2])
+	fmt.Printf("R = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][0], transform[1][0], transform[2][0])
+	fmt.Printf("G = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][1], transform[1][1], transform[2][1])
+	fmt.Printf("B = c.X*%f + c.Y*%f + c.Z*%f\n", transform[0][2], transform[1][2], transform[2][2])
 
 	// Output:
-	// R = c.X*3.241003600540255 + c.Y*-1.5373991710891957 + c.Z*-0.49861598312439226
-	// G = c.X*-0.9692242864995344 + c.Y*1.8759299885141119 + c.Z*0.04155424903337176
-	// B = c.X*0.05563936186796137 + c.Y*-0.20401108051523723 + c.Z*1.0571488385644063
+	// R = c.X*3.241004 + c.Y*-1.537399 + c.Z*-0.498616
+	// G = c.X*-0.969224 + c.Y*1.875930 + c.Z*0.041554
+	// B = c.X*0.055639 + c.Y*-0.204011 + c.Z*1.057149
 }
 
 func ExampleTransformToXYZForXYYPrimaries_generateSRGBMatrix() {
