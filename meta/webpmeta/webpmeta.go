@@ -194,12 +194,14 @@ func readICCP(r binary.Reader, chunkLen uint32) ([]byte, error) {
 		return nil, errors.New("no expected ICCP chunk")
 	}
 
-	// Extract ICCP.
-	data := make([]byte, ch.Length)
-	if _, err := io.ReadFull(r, data); err != nil {
+	// Extract ICCP. Read incrementally rather than pre-allocating a buffer
+	// sized from the untrusted chunk length, so a truncated stream declaring a
+	// huge length cannot force an unbounded allocation.
+	data := &bytes.Buffer{}
+	if _, err := io.CopyN(data, r, int64(ch.Length)); err != nil {
 		return nil, err
 	}
-	return data, nil
+	return data.Bytes(), nil
 }
 
 func verifySignature(r binary.Reader) error {
