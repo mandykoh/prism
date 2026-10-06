@@ -1,4 +1,4 @@
 github.com/mandykoh/go-parallel v0.1.0 h1:7vJMNMC4dsbgZdkAb2A8tV5ENY1v7VxIO1wzQWZoT8k=
 github.com/mandykoh/go-parallel v0.1.0/go.mod h1:lkYHqG1JNTaSS6lG+PgFCnyMd2VDy8pH9jN9pY899ig=
-golang.org/x/image v0.38.0 h1:5l+q+Y9JDC7mBOMjo4/aPhMDcxEptsX+Tt3GgRQRPuE=
-golang.org/x/image v0.38.0/go.mod h1:/3f6vaXC+6CEanU4KJxbcUZyEePbyKbaLoDOe4ehFYY=
+golang.org/x/image v0.41.0 h1:8wS72eGJMJaBxK6okTzd4WaXumUlTVlb753MlsSvTCo=
+golang.org/x/image v0.41.0/go.mod h1:uIc348UZMSvS5Z65CVZ7iDPaNobNFEPeJ4kbqTOszmA=
