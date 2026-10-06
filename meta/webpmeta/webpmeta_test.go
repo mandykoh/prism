@@ -2,6 +2,7 @@ package webpmeta
 
 import (
 	"bytes"
+	"runtime"
 	"testing"
 
 	"github.com/mandykoh/prism/meta/binary"
@@ -126,6 +127,30 @@ func TestExtractMetadata(t *testing.T) {
 			if expected, actual := uint32(8), md.BitsPerComponent; expected != actual {
 				t.Errorf("Expected image bits per component of %d but got %d", expected, actual)
 			}
+		}
+	})
+}
+
+func TestExtractMetadataICCPAllocation(t *testing.T) {
+	t.Run("does not allocate based on an untrusted ICCP chunk length", func(t *testing.T) {
+		// A VP8X header with the ICC profile flag set, followed by an ICCP
+		// chunk that declares a huge length but provides no data. The declared
+		// length must not drive the size of any allocation.
+		data := &bytes.Buffer{}
+		data.Write([]byte("RIFF\xc0Z\x04\x00WEBPVP8X\x0a\x00\x00\x00\x34\x00\x00\x00\xaf\x04\x00\xaf\x04\x00"))
+		data.Write(chunkTypeICCP[:])
+		binary.WriteU32Little(data, 512<<20) // claim 512 MiB of ICC profile data
+
+		var m0, m1 runtime.MemStats
+		runtime.ReadMemStats(&m0)
+		_, err := extractMetadata(bytes.NewReader(data.Bytes()))
+		runtime.ReadMemStats(&m1)
+
+		if err != nil {
+			t.Fatalf("Expected success but got error: %v", err)
+		}
+		if delta := m1.TotalAlloc - m0.TotalAlloc; delta > 8<<20 {
+			t.Errorf("Expected bounded allocation but allocated %d bytes for a truncated stream", delta)
 		}
 	})
 }
